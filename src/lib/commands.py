@@ -85,7 +85,7 @@ class Command(object):
         if (self.isAdmin(username_telegram)):
             context.bot.send_message(chat_id, text = "Insert the number of faces:")
             return FACE_NUMBER
-        context.bot.send_message(chat_id, text = "You are not the admin!")
+        context.bot.send_message(chat_id, text = "You are not the admin")
         return LOGGED
 
         
