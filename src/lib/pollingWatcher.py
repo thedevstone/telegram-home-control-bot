@@ -37,7 +37,8 @@ class Watcher:
         faces = self.videoAnalysis.analyze(file)
         for face in faces:
             face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-            for chatId in list(self.authChatIds.keys()):
+            logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] == True)
+            for chatId, value in logged_users.items():
                 temp_file = BytesIO()
                 temp_file.name = 'temp.png'
                 im = Image.fromarray(face)

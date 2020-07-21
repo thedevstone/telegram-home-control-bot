@@ -45,6 +45,7 @@ class Command(object):
             self.authChatIds[chat_id]["logged"] = False
             self.authChatIds[chat_id]["banned"] = False
             self.authChatIds[chat_id]["admin"] = False
+
         elif (self.authChatIds[chat_id]["banned"] == True):
             context.bot.send_message(chat_id, text = "You are banned. Bye Bye")
             log.warn("User: {} banned with chat_id: {}".format(username, chat_id))
@@ -68,9 +69,10 @@ class Command(object):
             else: 
                 self.authChatIds[chat_id]["tries"] = self.authChatIds[chat_id]["tries"] + 1
 
-        context.bot.send_message(chat_id, text = "Autentication failed.\nSend me your credentials again: <username>:<password>")
-        log.warn("New user: {} try autenticate with chat_id: {}".format(username, chat_id))
-        self.logAdmin("New user: {} try autenticate with chat_id: {}".format(username, chat_id), context)
+            context.bot.send_message(chat_id, text = "Autentication failed.\nSend me your credentials again: <username>:<password>")
+            log.warn("New user: {} try autenticate with chat_id: {}".format(username_telegram, chat_id))
+            self.logAdmin("New user: {} try autenticate with chat_id: {}".format(username_telegram, chat_id), context)
+            return CREDENTIALS
         return CREDENTIALS
 
     def face_number(self, update, context):
