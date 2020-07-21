@@ -17,11 +17,10 @@ class VideoAnalysis:
         fps = analysis["fps"]
         seconds = analysis["seconds"]
         face_number = analysis["faces"]
-        analysis_percent = analysis["keep_percentage"]
+        analysis_percent = analysis["sampling_percentage"]
         total_frames = fps * seconds
         frames_to_analyze = total_frames * analysis_percent
         frame_step = int(total_frames / frames_to_analyze)
-        print(frame_step)
         found_faces = 0
         frame_index = 0
         cropped_faces = []
@@ -30,7 +29,7 @@ class VideoAnalysis:
             if (frame_index % frame_step == 0):
                 if (found_faces == face_number or frame_index >= total_frames):
                     return cropped_faces
-                print(frame_index)
+                #print(frame_index) Loading?
                 ret, frame = vcap.read()
                 gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
                 faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)

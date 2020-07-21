@@ -30,7 +30,6 @@ class Watcher:
                 try: 
                     self.processFile(video) 
                     os.remove(video)
-                    print("done")
                 except: pass
     
     def processFile(self, file):

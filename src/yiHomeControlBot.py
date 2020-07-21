@@ -43,7 +43,7 @@ conversationHandler = ConversationHandler(
                     CommandHandler('get_log', callback = command.getLog),
                     CommandHandler('face_number', callback = command.face_number),
                     CommandHandler('seconds_to_analyze', callback = command.seconds_to_analyze),
-                    CommandHandler('frame_percentage_to_analyze', callback = command.frame_percentage)
+                    CommandHandler('frame_sampling_percentage', callback = command.frame_percentage)
                 ],
         FACE_NUMBER : [MessageHandler(filters = Filters.text, callback = command.set_face_number)],
         SECONDS: [MessageHandler(filters = Filters.text, callback = command.set_seconds_to_analyze)],

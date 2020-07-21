@@ -81,13 +81,13 @@ class Command(object):
         return LOGGED
 
     def face_number(self, update, context):
-        return self.config_command(update, context, FACE_NUMBER, "Insert the number of faces to detect")
+        return self.config_command(update, context, FACE_NUMBER, "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"]))
 
     def seconds_to_analyze(self, update, context):
-        return self.config_command(update, context, SECONDS, "Insert the number of seconds to analyze. (low is faster)")
+        return self.config_command(update, context, SECONDS, "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"]))
     
     def frame_percentage(self, update, context):
-        return self.config_command(update, context, PERCENTAGE, "Insert the percentage of frame to analyze (0.00 - 0.99)")
+        return self.config_command(update, context, PERCENTAGE, "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"]))
 
         
     #STATE=FACE_NUMBER
@@ -124,7 +124,7 @@ class Command(object):
             if (perc_int < 0 or perc_int > 100):
                 context.bot.send_message(chat_id, text = "Error! Insert the percentage")
                 return PERCENTAGE
-            self.config["analysis"]["keep_percentage"] = perc
+            self.config["analysis"]["sampling_percentage"] = perc
             context.bot.send_message(chat_id, text = "The system will analyze {}/100 of frames".format(perc_int))
             return LOGGED
         except ValueError:
