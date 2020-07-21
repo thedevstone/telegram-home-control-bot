@@ -33,14 +33,21 @@ dispatcher = updater.dispatcher
 command = commands.Command(config, authChatIds)
 
 # HANDLERS
-CREDENTIALS, LOGGED, FACE_NUMBER = range(3)
+CREDENTIALS, LOGGED, FACE_NUMBER, SECONDS, PERCENTAGE = range(5)
 
 conversationHandler = ConversationHandler(
     entry_points = [CommandHandler('start', callback = command.start)], 
     states = {
         CREDENTIALS : [MessageHandler(filters = Filters.text, callback = command.credentials)],
-        LOGGED : [CommandHandler('face_number', callback = command.face_number)],
+        LOGGED :[   CommandHandler('logout', callback = command.logout),
+                    CommandHandler('get_log', callback = command.getLog),
+                    CommandHandler('face_number', callback = command.face_number),
+                    CommandHandler('seconds_to_analyze', callback = command.seconds_to_analyze),
+                    CommandHandler('frame_percentage_to_analyze', callback = command.frame_percentage)
+                ],
         FACE_NUMBER : [MessageHandler(filters = Filters.text, callback = command.set_face_number)],
+        SECONDS: [MessageHandler(filters = Filters.text, callback = command.set_seconds_to_analyze)],
+        PERCENTAGE : [MessageHandler(filters = Filters.text, callback = command.set_frame_percentage)]
     },
     fallbacks = [CommandHandler('cancel', callback = command.cancel)]
 )
