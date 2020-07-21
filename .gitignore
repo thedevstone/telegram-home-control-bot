@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Private keys and certificates
+*.pem
+*.key
+
+# Testing videos
+*.mp4
+
+# Configuration yaml
+config.yaml
+
+# Log
+*.log*

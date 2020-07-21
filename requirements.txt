@@ -1,0 +1,8 @@
+matplotlib
+numba
+numpy
+opencv-contrib-python
+Pillow
+python-telegram-bot
+PyYAML
+watchdog
