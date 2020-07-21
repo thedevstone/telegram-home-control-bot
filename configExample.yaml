@@ -9,8 +9,9 @@ credentials:
   username: username
 analysis:
   fps: 20 # Camera fps
-  seconds: 5 # How many seconds analyze
-  faces: 5 # How many faces to send, configurable at runtime
+  seconds: 10 # How many seconds analyze
+  faces: 3 # How many faces to send, configurable at runtime
+  keep_percentage: 0.2 # How many frame analyze. 0.2 means analyze 1 frame of 5. DON'T INCREASE THIS NUMBER
 token: 111111111:aaaaaaaaaaaaaaa-1111111111 # Telegram Token
 watchDirectory: "." # Files directory (mp4)
 users:

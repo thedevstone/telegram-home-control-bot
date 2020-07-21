@@ -12,24 +12,26 @@ from PIL import Image
 from io import BytesIO
 
 class Watcher:
-    def __init__(self, directory_to_watch, videoAnalysis, authChatIds, bot):
+    def __init__(self, directory_to_watch, videoAnalysis, authChatIds, bot, config):
         self.directory_to_watch = directory_to_watch
         self.videoAnalysis = videoAnalysis
         self.authChatIds = authChatIds
         self.bot = bot
-        #self.savedSet = glob.glob(self.directory_to_watch + "/*.mp4")
+        self.config = config
         self.stop = False
 
     def checkFolder(self):
-        threading.Timer(10.0, self.checkFolder).start()
-        newset = glob.glob(self.directory_to_watch + "/*.mp4")
-        #diff =  set(newset) - set(self.savedSet)
-        if len(newset) != 0:
-            video = list(newset)[0]
-            print("Received created event - ", video)
-            self.processFile(video)
-        for file in newset:
-            os.remove(file)
+        while(True):
+            time.sleep(1)
+            newset = glob.glob(self.directory_to_watch + "/*.mp4")
+            if len(newset) != 0:
+                video = list(newset)[0]
+                print("Received created event - ", video)
+                try: 
+                    self.processFile(video) 
+                    os.remove(video)
+                    print("done")
+                except: pass
     
     def processFile(self, file):
         faces = self.videoAnalysis.analyze(file)
