@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import os
-import lib.botUtils
+import lib.botUtils #Remove to test this class
 import logging
 from matplotlib import pyplot as plt
 
@@ -17,7 +17,6 @@ class VideoAnalysis:
         fps = analysis["fps"]
         face_number = analysis["faces"]
         seconds = analysis["seconds"]
-
         found_faces = 0
         frame_index = 0
         cropped_faces = []
@@ -32,13 +31,14 @@ class VideoAnalysis:
                 frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2) 
                 crop_face = frame[y : y + h, x : x + w]
                 cropped_faces.append(crop_face)
-                #cv2.imshow('Crop face', crop_face)
+                #.imshow('Crop face', crop_face)
                 #cv2.waitKey(0)
                 found_faces += 1
             frame_index += 1
         return cropped_faces
 
 if __name__ == "__main__":
+    import botUtils
     config = botUtils.loadYaml("config.yaml")
     video = VideoAnalysis(config)
     video.analyze("video.mp4")

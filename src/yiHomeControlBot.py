@@ -4,7 +4,7 @@ from telegram import bot
 import os
 from pathlib import Path
 import logging
-from lib import commands, botUtils, osWatcher, videoAnalysis
+from lib import commands, botUtils, osWatcher, videoAnalysis, pollingWatcher
 import json
 import yaml
 import time
@@ -60,6 +60,7 @@ logger.info("Initialized Video-Analysis module")
 watch_directory = config["watchDirectory"]
 if (not os.path.isabs(watch_directory)):
     watch_directory = os.path.abspath(os.path.join(watch_directory, ".."))
-watcher = osWatcher.Watcher(watch_directory, videoAnalysis, authChatIds, bot)
-watcher.run()
+#watcher = osWatcher.Watcher(watch_directory, videoAnalysis, authChatIds, bot)
+watcher = pollingWatcher.Watcher(watch_directory, videoAnalysis, authChatIds, bot)
+watcher.checkFolder()
 logger.info("File watchdog started")
