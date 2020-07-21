@@ -14,3 +14,5 @@ config.yaml
 
 # Log
 *.log*
+
+# Macos
