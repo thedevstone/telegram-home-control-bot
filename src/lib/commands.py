@@ -14,6 +14,7 @@ class Command(object):
         self.config = config
         self.authChatIds = authChatIds
 
+    #STATE=START
     def start(self, update, context):
         chat_id = update.effective_chat.id
         # Store value
@@ -28,6 +29,7 @@ class Command(object):
             context.bot.send_message(chat_id, text = "You are not logged in!\nSend me your credentials: <username>:<password>")
         return CREDENTIALS
 
+    #STATE=CREDENTIALS
     def credentials(self, update, context):
         username_telegram = update.message.from_user["username"]
         chat_id = update.effective_chat.id
@@ -75,11 +77,18 @@ class Command(object):
             return CREDENTIALS
         return CREDENTIALS
 
+    #STATE=LOGGED
     def face_number(self, update, context):
+        username_telegram = update.message.from_user["username"]
         chat_id = update.effective_chat.id
-        context.bot.send_message(chat_id, text = "Insert the number of faces:")
-        return FACE_NUMBER
+        if (isAdmin(username_telegram)):
+            context.bot.send_message(chat_id, text = "Insert the number of faces:")
+            return FACE_NUMBER
+        else: 
+            context.bot.send_message(chat_id, text = "You are not the admin")
+            return LOGGED
         
+    #STATE=FACE_NUMBER
     def set_face_number(self, update, context):
         chat_id = update.effective_chat.id
         message = update.message.text
@@ -103,3 +112,7 @@ class Command(object):
         for k1,v1 in self.authChatIds.items():
             if (v1["username"] == self.config["users"]["admin"]):
                 context.bot.send_message(k1, text = msg)
+
+    def isAdmin(self, username):
+        return username == self.config["users"]["admin"]
+            
