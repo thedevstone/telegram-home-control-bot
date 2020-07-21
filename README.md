@@ -4,6 +4,7 @@
 - [Table of Contents](#table-of-contents)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [Raspberry Installation](#raspberry-installation)
 - [Features](#features)
 - [Performance](#performance)
 - [Supported cameras](#supported-cameras)
@@ -39,7 +40,7 @@ Mp4 videos pushed in directories through **ftp/sftp/ftps/scp** protocols.
 ```shell
   (venv) python yiHomeControlBot.py
 ```
-## Raspberry Installation
+## Raspberry-Installation
 Make everything works on Raspberry is very tediuous. I have figure out how to do that 
 1. **Opencv** is notoriously bastard on raspberry
 2. Install these dependecies [thanks to [stackoverflow](https://stackoverflow.com/questions/59080094/raspberry-pi-and-opencv-cant-install-libhdf5-100)]
