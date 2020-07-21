@@ -17,18 +17,19 @@ class Watcher:
         self.videoAnalysis = videoAnalysis
         self.authChatIds = authChatIds
         self.bot = bot
-        self.savedSet = glob.glob(self.directory_to_watch + "/*.mp4")
+        #self.savedSet = glob.glob(self.directory_to_watch + "/*.mp4")
         self.stop = False
 
     def checkFolder(self):
-        threading.Timer(3.0, self.checkFolder).start()
+        threading.Timer(10.0, self.checkFolder).start()
         newset = glob.glob(self.directory_to_watch + "/*.mp4")
-        diff =  set(newset) - set(self.savedSet)
-        if len(diff) != 0:
-            video = list(diff)[0]
+        #diff =  set(newset) - set(self.savedSet)
+        if len(newset) != 0:
+            video = list(newset)[0]
             print("Received created event - ", video)
             self.processFile(video)
-        self.savedSet = newset
+        for file in newset:
+            os.remove(file)
     
     def processFile(self, file):
         faces = self.videoAnalysis.analyze(file)
