@@ -1,0 +1,12 @@
+/start
+Start the bot and auth
+/get_log
+Get bot log
+/face_number
+Number of faces to detect
+/seconds_to_analyze
+Seconds of video to seconds_to_analyze
+/frame_sampling_percentage
+Frame sampling percentage
+/logout
+Log the user out
