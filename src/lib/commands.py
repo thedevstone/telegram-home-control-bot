@@ -129,7 +129,7 @@ class Command(object):
         if (command == "face"):
             faces = int(value)
             self.config["analysis"]["faces"] = faces
-            text = "The system will analyze {}s videos".format(faces)
+            text = "The system will detect {} faces".format(faces)
             pass
         elif (command == "seconds"):
             seconds = int(value)
