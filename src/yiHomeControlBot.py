@@ -1,5 +1,5 @@
 from telegram.ext import Updater
-from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, Filters
+from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, CallbackQueryHandler, Filters
 from telegram import bot
 import os
 from pathlib import Path
@@ -33,31 +33,41 @@ dispatcher = updater.dispatcher
 command = commands.Command(config, authChatIds)
 
 # HANDLERS
-CREDENTIALS, LOGGED, FACE_NUMBER, SECONDS, PERCENTAGE = range(5)
+CREDENTIALS, LOGGED, SETTINGS = range(3)
+SETTINGS_RESP, END = range(3, 5)
+
+settings_handler = ConversationHandler(
+    entry_points = [CallbackQueryHandler(callback = command.settings)], 
+    states = {
+        SETTINGS_RESP: [CallbackQueryHandler(callback = command.setting_resp, )]
+    },
+    fallbacks= {},
+    per_message=True,
+    map_to_parent = {
+        END: LOGGED
+    }
+)
 
 conversationHandler = ConversationHandler(
     entry_points = [CommandHandler('start', callback = command.start)], 
     states = {
         CREDENTIALS : [MessageHandler(filters = Filters.text, callback = command.credentials)],
-        LOGGED :[   CommandHandler('logout', callback = command.logout),
-                    CommandHandler('get_log', callback = command.getLog),
-                    CommandHandler('face_number', callback = command.face_number),
-                    CommandHandler('seconds_to_analyze', callback = command.seconds_to_analyze),
-                    CommandHandler('frame_sampling_percentage', callback = command.frame_percentage)
-                ],
-        FACE_NUMBER : [MessageHandler(filters = Filters.text, callback = command.set_face_number)],
-        SECONDS: [MessageHandler(filters = Filters.text, callback = command.set_seconds_to_analyze)],
-        PERCENTAGE : [MessageHandler(filters = Filters.text, callback = command.set_frame_percentage)]
+        LOGGED :[CommandHandler('settings', callback = command.show_settings),
+                CommandHandler('logout', callback = command.logout)
+        ],
+        SETTINGS: [settings_handler]
     },
-    fallbacks = [CommandHandler('cancel', callback = command.cancel)]
+    fallbacks= {}
 )
+
 dispatcher.add_handler(conversationHandler)
 
 ######### START WEBHOOK
 network = config["network"]
 key = botUtils.getProjectRelativePath(network["key"])
 cert = botUtils.getProjectRelativePath(network["cert"])
-botUtils.startWebHook(updater, config["token"], network["ip"], network["port"], key, cert)
+#botUtils.startWebHook(updater, config["token"], network["ip"], network["port"], key, cert)
+updater.start_polling()
 logger.info("Started Webhook bot")
 
 ########## OPENCV

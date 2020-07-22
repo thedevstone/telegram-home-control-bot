@@ -27,7 +27,7 @@ class VideoAnalysis:
         vcap = cv2.VideoCapture(video)
         while(1):
             if (frame_index % frame_step == 0):
-                if (found_faces == face_number or frame_index >= total_frames):
+                if (found_faces >= face_number or frame_index >= total_frames):
                     return cropped_faces
                 #print(frame_index) Loading?
                 ret, frame = vcap.read()
