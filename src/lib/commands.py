@@ -1,8 +1,9 @@
 import os
 import logging
-from telegram import Bot, ParseMode
+from telegram import Bot, ParseMode, ForceReply, KeyboardButton, ReplyKeyboardMarkup
 from lib import botUtils
 import yaml
+import numpy as np
 from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, Filters
 
 log = logging.getLogger(os.path.basename(__file__))
@@ -71,23 +72,30 @@ class Command(object):
 
     #STATE=LOGGED
     #Show keyboard
-    def config_command(self, update, context, state, message):
+    def config_command(self, update, context, state, message, kb_markup):
         username_telegram = update.message.from_user["username"]
         chat_id = update.effective_chat.id
         if (self.isAdmin(username_telegram)):
-            context.bot.send_message(chat_id, text = message)
+            context.bot.send_message(chat_id, text = message, reply_markup=kb_markup)
             return state
         context.bot.send_message(chat_id, text = "You are not the admin")
         return LOGGED
 
     def face_number(self, update, context):
-        return self.config_command(update, context, FACE_NUMBER, "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"]))
+        kb = [[KeyboardButton(n) for n in range(0, 5)]]
+        kb_markup = ReplyKeyboardMarkup(kb, one_time_keyboard=True)
+        return self.config_command(update, context, FACE_NUMBER, "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"]), kb_markup)
 
     def seconds_to_analyze(self, update, context):
-        return self.config_command(update, context, SECONDS, "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"]))
+        elem_per_row, row_number, step = 10, 2, 2
+        kb = [[KeyboardButton(x) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step , step)] for y in range(0, row_number)]
+        kb_markup = ReplyKeyboardMarkup(kb, one_time_keyboard=True)
+        return self.config_command(update, context, SECONDS, "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"]), kb_markup)
     
     def frame_percentage(self, update, context):
-        return self.config_command(update, context, PERCENTAGE, "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"]))
+        kb = [[KeyboardButton(round(n, 1)) for n in np.linspace(0.1, 0.5, 5)]]
+        kb_markup = ReplyKeyboardMarkup(kb, one_time_keyboard=True)
+        return self.config_command(update, context, PERCENTAGE, "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"]), kb_markup)
 
         
     #STATE=FACE_NUMBER
@@ -120,12 +128,14 @@ class Command(object):
         message = update.message.text
         try:
             perc = float(message)
-            perc_int = perc * 100
+            perc_int = int(perc * 100)
             if (perc_int < 0 or perc_int > 100):
                 context.bot.send_message(chat_id, text = "Error! Insert the percentage")
                 return PERCENTAGE
             self.config["analysis"]["sampling_percentage"] = perc
-            context.bot.send_message(chat_id, text = "The system will analyze {}/100 of frames".format(perc_int))
+            total_frames = self.config["analysis"]["seconds"] * self.config["analysis"]["fps"]
+            analyzed_frames = int(total_frames * perc)
+            context.bot.send_message(chat_id, text = "The system will analyze {} frames per video.\n({}% of all {} frames)".format(analyzed_frames, perc_int, total_frames))
             return LOGGED
         except ValueError:
             context.bot.send_message(chat_id, text = "Error! Insert the number of percentage")
