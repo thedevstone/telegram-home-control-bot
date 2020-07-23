@@ -77,7 +77,7 @@ class Command(object):
         update.message.delete()
 
         #Credentials ok
-        if (username == splitted[0] and password == splitted[1]):
+        if (username == splitted[0] and password == splitted[1] and self.authChatIds[chat_id]["banned"] == False):
             self.authChatIds[chat_id]["logged"] = True
             message_sent = context.bot.send_message(chat_id, text = "✅ Autentication succeded")
             self.check_last_and_delete(update, context, message_sent)
@@ -116,6 +116,12 @@ class Command(object):
         return LOGGED
 
     def show_settings(self, update: Update, context):
+        update.callback_query.answer()
+        username_telegram = update.effective_user["username"]
+        if (not self.isAdmin(username_telegram)):
+            message_sent = update.callback_query.edit_message_text(text = "🔐 You are not an admin")
+            self.check_last_and_delete(update, context, message_sent)
+            return LOGGED
         keyboard = [[InlineKeyboardButton(text="GetLog", callback_data=str(LOG_CLICK))],
                     [InlineKeyboardButton(text="Number of Faces", callback_data=str(FACES_CLICK))],
                     [InlineKeyboardButton(text="Seconds to analyze", callback_data=str(SECONDS_CLICK))],
@@ -127,16 +133,19 @@ class Command(object):
         return SETTINGS
 
     def logout(self, update: Update, context):
+        update.callback_query.answer()
         chat_id = update.effective_chat.id
         self.authChatIds[chat_id]["logged"] = False
         update.effective_message.delete()
         return self.start(update, context)
 
     def exit(self, update: Update, context):
+        update.callback_query.answer()
         update.effective_message.delete()
         return END
 
     def get_log(self, update: Update, context):
+        update.callback_query.answer()
         with open(botUtils.getProjectRelativePath("app.log")) as f:
             keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))]]
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -144,6 +153,7 @@ class Command(object):
         return RESP_SETTINGS
         
     def face_number(self, update: Update, context):
+        update.callback_query.answer()
         text = "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"])
         kb = [[InlineKeyboardButton(n, callback_data="face:{}".format(n)) for n in range(0, 5)],
             [InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))]]
@@ -152,6 +162,7 @@ class Command(object):
         return RESP_SETTINGS
 
     def seconds_to_analyze(self, update: Update, context):
+        update.callback_query.answer()
         text = "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"])
         elem_per_row, row_number, step = 10, 2, 2
         kb = [[InlineKeyboardButton(x, callback_data="seconds:{}".format(x)) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step , step)] for y in range(0, row_number)]
@@ -161,6 +172,7 @@ class Command(object):
         return RESP_SETTINGS
     
     def frame_percentage(self, update: Update, context):
+        update.callback_query.answer()
         text = "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"])
         kb = [[InlineKeyboardButton(round(n, 1), callback_data="percentage:{}".format(n)) for n in np.linspace(0.1, 0.5, 5)],
             [InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))]]

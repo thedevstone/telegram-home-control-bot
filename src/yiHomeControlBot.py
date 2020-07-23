@@ -86,8 +86,7 @@ conversationHandler = ConversationHandler(
         CREDENTIALS : [MessageHandler(filters = Filters.text, callback = command.credentials)],
         LOGGED :[CommandHandler('menu', callback = command.show_logged_menu), menu_handler],
     },
-    fallbacks = [CallbackQueryHandler(command.start, pattern='^' + str(EXIT_CLICK) + '$')],
-    allow_reentry=True
+    fallbacks = [CallbackQueryHandler(command.start, pattern='^' + str(EXIT_CLICK) + '$')]
 )
 
 dispatcher.add_handler(conversationHandler)
