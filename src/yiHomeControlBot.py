@@ -108,8 +108,8 @@ logger.info("Initialized Video-Analysis module")
 watch_directory = config["watchDirectory"]
 if (not os.path.isabs(watch_directory)):
     watch_directory = os.path.abspath(os.path.join(watch_directory, ".."))
-#watcher = osWatcher.Watcher(watch_directory, videoAnalysis, authChatIds, bot)
-watcher = pollingWatcher.Watcher(watch_directory, videoAnalysis, authChatIds, bot, config)
+watcher = osWatcher.Watcher(watch_directory, videoAnalysis, authChatIds, bot)
+#watcher = pollingWatcher.Watcher(watch_directory, videoAnalysis, authChatIds, bot, config)
 thread1 = threading.Thread(watcher.checkFolder())
 thread1.start()
 logger.info("File watchdog started")
