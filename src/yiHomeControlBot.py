@@ -33,31 +33,61 @@ dispatcher = updater.dispatcher
 command = commands.Command(config, authChatIds)
 
 # HANDLERS
-CREDENTIALS, LOGGED, SETTINGS = range(3)
-SETTINGS_RESP, END = range(3, 5)
+CREDENTIALS, LOGGED, NOT_LOGGED, END = range(4)
+
+SETTINGS, RESP_SETTINGS = range(4, 6)
+
+# Selection Level 1 Menu
+SETTINGS_CLICK, LOGOUT_CLICK, EXIT_CLICK, BACK_CLICK = map(chr, range(20, 24))
+
+# Selection Level 2 Settings
+LOG_CLICK, FACES_CLICK, SECONDS_CLICK, PERCENTAGE_CLICK  = map(chr, range(10, 14))
 
 settings_handler = ConversationHandler(
-    entry_points = [CallbackQueryHandler(callback = command.settings)], 
+    entry_points = [CallbackQueryHandler(command.get_log, pattern='^' + str(LOG_CLICK) + '$'),
+                    CallbackQueryHandler(command.face_number, pattern='^' + str(FACES_CLICK) + '$'),
+                    CallbackQueryHandler(command.seconds_to_analyze, pattern='^' + str(SECONDS_CLICK) + '$'), 
+                    CallbackQueryHandler(command.frame_percentage, pattern='^' + str(PERCENTAGE_CLICK) + '$'), 
+                    ],  
     states = {
-        SETTINGS_RESP: [CallbackQueryHandler(callback = command.setting_resp, )]
+        RESP_SETTINGS: [CallbackQueryHandler(command.setting_resp, pattern="^(?!" + str(BACK_CLICK)+ ").*")]
     },
-    fallbacks= {},
+    fallbacks = [CallbackQueryHandler(command.exit, pattern='^' + str(EXIT_CLICK) + '$'),
+                CallbackQueryHandler(command.show_settings, pattern='^' + str(BACK_CLICK) + '$')],
     per_message=True,
     map_to_parent = {
-        END: LOGGED
+        END: LOGGED,
+        SETTINGS : SETTINGS
     }
 )
 
+#Level 1 only callback (no warning)
+menu_handler = ConversationHandler(
+    entry_points = [CallbackQueryHandler(command.show_settings, pattern='^' + str(SETTINGS_CLICK) + '$'),
+                    CallbackQueryHandler(command.logout, pattern='^' + str(LOGOUT_CLICK) + '$'),
+                    ], 
+    states = {
+        SETTINGS: [settings_handler]
+    },
+    fallbacks = [CallbackQueryHandler(command.exit, pattern='^' + str(EXIT_CLICK) + '$')],
+    per_message=True,
+    map_to_parent = {
+        END : LOGGED,
+        LOGGED: LOGGED,
+        NOT_LOGGED: NOT_LOGGED
+    }
+)
+
+#Level 0
 conversationHandler = ConversationHandler(
     entry_points = [CommandHandler('start', callback = command.start)], 
     states = {
+        NOT_LOGGED : [CommandHandler('login', callback = command.login)],
         CREDENTIALS : [MessageHandler(filters = Filters.text, callback = command.credentials)],
-        LOGGED :[CommandHandler('settings', callback = command.show_settings),
-                CommandHandler('logout', callback = command.logout)
-        ],
-        SETTINGS: [settings_handler]
+        LOGGED :[CommandHandler('menu', callback = command.show_logged_menu), menu_handler],
     },
-    fallbacks= {}
+    fallbacks = [CallbackQueryHandler(command.start, pattern='^' + str(EXIT_CLICK) + '$')],
+    allow_reentry=True
 )
 
 dispatcher.add_handler(conversationHandler)
@@ -66,8 +96,8 @@ dispatcher.add_handler(conversationHandler)
 network = config["network"]
 key = botUtils.getProjectRelativePath(network["key"])
 cert = botUtils.getProjectRelativePath(network["cert"])
-botUtils.startWebHook(updater, config["token"], network["ip"], network["port"], key, cert)
-#updater.start_polling()
+#botUtils.startWebHook(updater, config["token"], network["ip"], network["port"], key, cert)
+updater.start_polling()
 logger.info("Started Webhook bot")
 
 ########## OPENCV

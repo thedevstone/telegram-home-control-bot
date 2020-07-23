@@ -8,12 +8,18 @@ import numpy as np
 from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, Filters
 
 log = logging.getLogger(os.path.basename(__file__))
-CREDENTIALS, LOGGED, SETTINGS = range(3)
-SETTINGS_RESP, END = range(3, 5)
 
-# Different constants for this example
-LOG, FACES, SECONDS, PERCENTAGE, EXIT  = range(10, 15)
-START_OVER = range(15, 16)
+## Level 1 STATES
+# HANDLERS
+CREDENTIALS, LOGGED, NOT_LOGGED, END = range(4)
+
+SETTINGS, RESP_SETTINGS = range(4, 6)
+
+# Selection Level 1 Menu
+SETTINGS_CLICK, LOGOUT_CLICK, EXIT_CLICK, BACK_CLICK = map(chr, range(20, 24))
+
+# Selection Level 2 Settings
+LOG_CLICK, FACES_CLICK, SECONDS_CLICK, PERCENTAGE_CLICK  = map(chr, range(10, 14))
 
 class Command(object):
     # Constructor
@@ -23,6 +29,7 @@ class Command(object):
 
     #STATE=START
     def start(self, update, context):
+        #return LOGGED
         chat_id = update.effective_chat.id
         username = update.effective_user["username"]
         #Init user if not exists
@@ -31,12 +38,15 @@ class Command(object):
         # Store value
         if (self.authChatIds[chat_id]["logged"] == True):
             update.callback_query.answer()
-            update.callback_query.edit_message_text(text="You are already logged in!", reply_markup=None)
+            update.effective_message.delete()
             return LOGGED
         else:
-            context.bot.send_message(chat_id,text="Welcome to *Home Control Bot* by *NiNi* [link](http://google.com)\.", parse_mode=ParseMode.MARKDOWN_V2)
-            update.message.reply_text(text="Send me bot credentials: <username>:<password>", reply_markup=None)
-            return CREDENTIALS
+            context.bot.send_message(chat_id,text="Welcome to *Home Control Bot* by *NiNi* [link](https://github.com/Giulianini/yi-hack-control-bot)\.\nPlease login", parse_mode=ParseMode.MARKDOWN_V2)
+            return NOT_LOGGED
+
+    def login(self, update, context):
+        update.message.reply_text(text="Send me bot credentials: <username>:<password>", reply_markup=None)
+        return CREDENTIALS
 
     #STATE=CREDENTIALS
     def credentials(self, update, context):
@@ -77,47 +87,67 @@ class Command(object):
                 self.logAdmin("New user: {} try autenticate with chat_id: {}".format(username_telegram, chat_id), context)
             return CREDENTIALS
 
-    def show_settings(self, update, context):
-        keyboard = [[InlineKeyboardButton(text="GetLog", callback_data=LOG)],
-                    [InlineKeyboardButton(text="Number of Faces", callback_data=FACES)],
-                    [InlineKeyboardButton(text="Seconds to analyze", callback_data=SECONDS)],
-                    [InlineKeyboardButton(text="Sampling frame percentage", callback_data=PERCENTAGE)],
-                    [InlineKeyboardButton(text="❌", callback_data=EXIT)]
+    def show_logged_menu(self, update, context):
+        keyboard = [[InlineKeyboardButton(text="Settings", callback_data=str(SETTINGS_CLICK))],
+                    [InlineKeyboardButton(text="Logout", callback_data=str(LOGOUT_CLICK))],
+                    [InlineKeyboardButton(text="❌", callback_data=str(EXIT_CLICK))]
                     ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text(text = "Select setting:", reply_markup=reply_markup)
+        update.message.reply_text(text = "Menu", reply_markup=reply_markup)
+        return LOGGED
+
+    def show_settings(self, update: Update, context):
+        keyboard = [[InlineKeyboardButton(text="GetLog", callback_data=str(LOG_CLICK))],
+                    [InlineKeyboardButton(text="Number of Faces", callback_data=str(FACES_CLICK))],
+                    [InlineKeyboardButton(text="Seconds to analyze", callback_data=str(SECONDS_CLICK))],
+                    [InlineKeyboardButton(text="Sampling frame percentage", callback_data=str(PERCENTAGE_CLICK))],
+                    [InlineKeyboardButton(text="❌", callback_data=str(EXIT_CLICK))]
+                    ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        update.callback_query.edit_message_text(text = "Select setting:", reply_markup=reply_markup)
         return SETTINGS
 
-    def settings(self, update, context):
-        setting = int(update.callback_query.data)
-        keyboard = None
-        text = ""
-        state = SETTINGS_RESP
+    def logout(self, update: Update, context):
+        chat_id = update.effective_chat.id
+        self.authChatIds[chat_id]["logged"] = False
+        update.effective_message.delete()
+        return self.start(update, context)
+
+    def exit(self, update: Update, context):
+        update.effective_message.delete()
+        return END
+
+    def get_log(self, update: Update, context):
+        with open(botUtils.getProjectRelativePath("app.log")) as f:
+            keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            update.callback_query.edit_message_text(text = f.readlines(), reply_markup=reply_markup)
+        return RESP_SETTINGS
         
-        update.callback_query.answer()
-        username_telegram = update.effective_user
-        if (self.isAdmin(username_telegram)):
-            text = "You are not admin!"
-        
-        if (setting == LOG):
-            text = self.getLog()
-            state = END
-        elif (setting == FACES):
-            text = "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"])
-            keyboard = self.face_number()
-        elif (setting == SECONDS):
-            text = "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"])
-            keyboard = self.seconds_to_analyze()
-        elif (setting == PERCENTAGE):
-            text = "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"])
-            keyboard = self.frame_percentage()
-        elif (setting == EXIT):
-            update.callback_query.edit_message_reply_markup(None)
-            self.start(update, context)
-            return END
-        
-        update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
-        return state
+    def face_number(self, update: Update, context):
+        text = "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"])
+        kb = [[InlineKeyboardButton(n, callback_data="face:{}".format(n)) for n in range(0, 5)],
+            [InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))]]
+        kb_markup = InlineKeyboardMarkup(kb)
+        update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
+        return RESP_SETTINGS
+
+    def seconds_to_analyze(self, update: Update, context):
+        text = "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"])
+        elem_per_row, row_number, step = 10, 2, 2
+        kb = [[InlineKeyboardButton(x, callback_data="seconds:{}".format(x)) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step , step)] for y in range(0, row_number)]
+        kb.append([InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))])
+        kb_markup = InlineKeyboardMarkup(kb)
+        update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
+        return RESP_SETTINGS
+    
+    def frame_percentage(self, update: Update, context):
+        text = "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"])
+        kb = [[InlineKeyboardButton(round(n, 1), callback_data="percentage:{}".format(n)) for n in np.linspace(0.1, 0.5, 5)],
+            [InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))]]
+        kb_markup = InlineKeyboardMarkup(kb)
+        update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
+        return RESP_SETTINGS
 
     def setting_resp(self, update: Update, context):
         setting = update.callback_query.data
@@ -144,45 +174,12 @@ class Command(object):
             text = "The system will analyze {} frames per video.\n({}% of all {} frames)".format(analyzed_frames, perc_int, total_frames)
             pass
 
+        keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(BACK_CLICK))]] #Exit if you want to exit
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
         update.callback_query.answer()
-        update.callback_query.edit_message_text(text=text)
-        return END
-
-    def getLog(self):
-        with open(botUtils.getProjectRelativePath("app.log")) as f:
-            return f.readlines()
-
-    def face_number(self):
-        kb = [[InlineKeyboardButton(n, callback_data="face:{}".format(n)) for n in range(0, 5)]]
-        kb_markup = InlineKeyboardMarkup(kb)
-        return kb_markup
-
-    def seconds_to_analyze(self):
-        elem_per_row, row_number, step = 10, 2, 2
-        kb = [[InlineKeyboardButton(x, callback_data="seconds:{}".format(x)) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step , step)] for y in range(0, row_number)]
-        kb_markup = InlineKeyboardMarkup(kb)
-        return kb_markup
-    
-    def frame_percentage(self):
-        kb = [[InlineKeyboardButton(round(n, 1), callback_data="percentage:{}".format(n)) for n in np.linspace(0.1, 0.5, 5)]]
-        kb_markup = InlineKeyboardMarkup(kb)
-        return kb_markup
-
-
-    #STATE=LOGGED
-    def logout(self, update, context):
-        chat_id = update.effective_chat.id
-        self.authChatIds[chat_id]["logged"] = False
-        context.bot.send_message(chat_id, text = "Logged out")
-        return ConversationHandler.END
-
-    def cancel(self, update):
-        print("cancel")
-        return ConversationHandler.END
-
-    def error(self, update, error):
-        """Log Errors caused by Updates."""
-        log.warning('Update "%s" caused error "%s"', update, update.error)
+        update.callback_query.edit_message_text(text = text, reply_markup=reply_markup)
+        return LOGGED
 
     def logAdmin(self, msg, context):
         for k1,v1 in self.authChatIds.items():
