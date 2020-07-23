@@ -95,8 +95,8 @@ dispatcher.add_handler(conversationHandler)
 network = config["network"]
 key = botUtils.getProjectRelativePath(network["key"])
 cert = botUtils.getProjectRelativePath(network["cert"])
-#botUtils.startWebHook(updater, config["token"], network["ip"], network["port"], key, cert)
-updater.start_polling()
+botUtils.startWebHook(updater, config["token"], network["ip"], network["port"], key, cert)
+#updater.start_polling()
 logger.info("Started Webhook bot")
 
 ########## OPENCV
