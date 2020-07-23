@@ -27,6 +27,17 @@ class Command(object):
         self.config = config
         self.authChatIds = authChatIds
 
+    def check_last_and_delete(self, update, context, message):
+        if ("last_message" in context.user_data and message != None):
+            context.user_data["last_message"].delete()
+            context.user_data["last_message"] = message
+        elif ("last_message" in context.user_data and message == None):
+            context.user_data["last_message"].delete()
+            del context.user_data["last_message"]
+        elif ("last_message" not in context.user_data and message != None):
+            context.user_data["last_message"] = message
+        else: pass # messaggio non c'è e non è stato passato
+
     #STATE=START
     def start(self, update, context):
         #return LOGGED
@@ -41,11 +52,14 @@ class Command(object):
             update.effective_message.delete()
             return LOGGED
         else:
-            context.bot.send_message(chat_id,text="Welcome to *Home Control Bot* by *NiNi* [link](https://github.com/Giulianini/yi-hack-control-bot)\.\nPlease login", parse_mode=ParseMode.MARKDOWN_V2)
+            message = context.bot.send_message(chat_id,text="Welcome to *Home Control Bot* by *NiNi* [link](https://github.com/Giulianini/yi-hack-control-bot)\.\nPlease login", parse_mode=ParseMode.MARKDOWN_V2)
+            self.check_last_and_delete(update, context, message)
             return NOT_LOGGED
 
     def login(self, update, context):
-        update.message.reply_text(text="Send me bot credentials: <username>:<password>", reply_markup=None)
+        message = update.message.reply_text(text="Send me bot credentials: <username>:<password>", reply_markup=None)
+        self.check_last_and_delete(update, context, message)
+        update.message.delete()
         return CREDENTIALS
 
     #STATE=CREDENTIALS
@@ -60,14 +74,15 @@ class Command(object):
         password = credentials["password"]
         message = update.message.text
         splitted = message.split(':')
-
+        update.message.delete()
 
         #Credentials ok
         if (username == splitted[0] and password == splitted[1]):
             self.authChatIds[chat_id]["logged"] = True
-            context.bot.send_message(chat_id, text = "Autentication succeded")
+            message_sent = context.bot.send_message(chat_id, text = "✅ Autentication succeded")
+            self.check_last_and_delete(update, context, message_sent)
             log.info("New user logged: {} chat_id: {}".format(username_telegram, chat_id))
-            self.logAdmin("New user logged: {} chat_id: {}".format(username_telegram, chat_id), context)
+            #self.logAdmin("New user logged: {} chat_id: {}".format(username_telegram, chat_id), context)
             return LOGGED
         else: #Credentials not ok
             self.authChatIds[chat_id]["logged"] = False
@@ -77,17 +92,21 @@ class Command(object):
                 self.authChatIds[chat_id]["tries"] = self.authChatIds[chat_id]["tries"] + 1
             #User banned
             if (self.authChatIds[chat_id]["banned"] == True):
-                context.bot.send_message(chat_id, text = "You are banned. Bye Bye")
+                message_sent = context.bot.send_message(chat_id, text = "😢 You are banned. Bye Bye")
+                self.check_last_and_delete(update, context, message_sent)
                 log.warn("User: {} banned with chat_id: {}".format(username, chat_id))
-                self.logAdmin("User: {} banned with chat_id: {}".format(username, chat_id), context)
+                #self.logAdmin("User: {} banned with chat_id: {}".format(username, chat_id), context)
                 return ConversationHandler.END
             else:
-                context.bot.send_message(chat_id, text = "Autentication failed.\nSend me your credentials again: <username>:<password>")
+                message_sent = context.bot.send_message(chat_id, text = "❌ Authentication failed.\nSend me your credentials again: <username>:<password>")
+                self.check_last_and_delete(update, context, message_sent)
                 log.warn("New user: {} try autenticate with chat_id: {}".format(username_telegram, chat_id))
-                self.logAdmin("New user: {} try autenticate with chat_id: {}".format(username_telegram, chat_id), context)
+                #self.logAdmin("New user: {} try autenticate with chat_id: {}".format(username_telegram, chat_id), context)
             return CREDENTIALS
 
     def show_logged_menu(self, update, context):
+        self.check_last_and_delete(update, context, None)
+        update.message.delete()
         keyboard = [[InlineKeyboardButton(text="Settings", callback_data=str(SETTINGS_CLICK))],
                     [InlineKeyboardButton(text="Logout", callback_data=str(LOGOUT_CLICK))],
                     [InlineKeyboardButton(text="❌", callback_data=str(EXIT_CLICK))]
