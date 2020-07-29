@@ -124,11 +124,13 @@ class Command(object):
     def show_settings(self, update: Update, context):
         update.callback_query.answer()
         username_telegram = update.effective_user["username"]
+        status = self.config["analysis"]["status"]
         if (not self.isAdmin(username_telegram)):
             message_sent = update.callback_query.edit_message_text(text = "🔐 You are not an admin")
             self.check_last_and_delete(update, context, message_sent)
             return botStates.LOGGED
-        keyboard = [[InlineKeyboardButton(text="GetLog", callback_data=str(botEvents.LOG_CLICK))],
+        keyboard = [[InlineKeyboardButton(text="Switch Off" if (status) else "Switch On", callback_data=str(botEvents.TOGGLE_CLICK))],
+                    [InlineKeyboardButton(text="GetLog", callback_data=str(botEvents.LOG_CLICK))],
                     [InlineKeyboardButton(text="Number of Faces", callback_data=str(botEvents.FACES_CLICK))],
                     [InlineKeyboardButton(text="Seconds to analyze", callback_data=str(botEvents.SECONDS_CLICK))],
                     [InlineKeyboardButton(text="Sampling frame percentage", callback_data=str(botEvents.PERCENTAGE_CLICK))],
@@ -150,18 +152,37 @@ class Command(object):
         update.effective_message.delete()
         return botStates.END
 
+    def toggle(self, update: Update, context):
+        status = self.config["analysis"]["status"]
+        self.config["analysis"]["status"] = not status
+        update.callback_query.answer()
+        kb = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
+        reply_markup = InlineKeyboardMarkup(kb)
+        update.callback_query.edit_message_text(text = "System switched Off" if (status) else "System switched On", reply_markup=reply_markup)
+        return botStates.RESP_SETTINGS
+
     def get_log(self, update: Update, context):
         update.callback_query.answer()
         with open(botUtils.getProjectRelativePath("app.log")) as f:
             keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
             reply_markup = InlineKeyboardMarkup(keyboard)
-            update.callback_query.edit_message_text(text = f.readlines(), reply_markup=reply_markup)
+            text = f.readlines()
+            size = 0
+            line_index = 0
+            for line in reversed(text):
+                line_len = len(line)
+                if (size + line_len < 4096):
+                    size += line_len
+                    line_index += 1
+            
+            text = text[-line_index:]
+            update.callback_query.edit_message_text(text = text, reply_markup=reply_markup)
         return botStates.RESP_SETTINGS
         
     def face_number(self, update: Update, context):
         update.callback_query.answer()
         text = "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"])
-        kb = [[InlineKeyboardButton(n, callback_data="face:{}".format(n)) for n in range(0, 5)],
+        kb = [[InlineKeyboardButton(n, callback_data="face:{}".format(n)) for n in range(0, 6)],
             [InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
@@ -170,8 +191,8 @@ class Command(object):
     def seconds_to_analyze(self, update: Update, context):
         update.callback_query.answer()
         text = "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"])
-        elem_per_row, row_number, step = 10, 2, 2
-        kb = [[InlineKeyboardButton(x, callback_data="seconds:{}".format(x)) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step , step)] for y in range(0, row_number)]
+        elem_per_row, row_number, step = 60, 2, 10
+        kb = [[InlineKeyboardButton(x, callback_data="seconds:{}".format(x)) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step, step)] for y in range(0, row_number)]
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))])
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)

@@ -1,6 +1,6 @@
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, CallbackQueryHandler, Filters
-from lib import command, botStates, botEvents
+from lib import command, botStates, botEvents, botUtils
 import os
 import logging
 
@@ -18,7 +18,8 @@ class TelegramBot:
 
         # FSM
         self.settings_handler = ConversationHandler(
-            entry_points = [CallbackQueryHandler(self.command.get_log, pattern='^' + str(botEvents.LOG_CLICK) + '$'),
+            entry_points = [CallbackQueryHandler(self.command.toggle, pattern='^' + str(botEvents.TOGGLE_CLICK) + '$'),
+                            CallbackQueryHandler(self.command.get_log, pattern='^' + str(botEvents.LOG_CLICK) + '$'),
                             CallbackQueryHandler(self.command.face_number, pattern='^' + str(botEvents.FACES_CLICK) + '$'),
                             CallbackQueryHandler(self.command.seconds_to_analyze, pattern='^' + str(botEvents.SECONDS_CLICK) + '$'), 
                             CallbackQueryHandler(self.command.frame_percentage, pattern='^' + str(botEvents.PERCENTAGE_CLICK) + '$'), 
@@ -69,10 +70,10 @@ class TelegramBot:
 
     def startWebHook(self):
         ######### START WEBHOOK
-        network = config["network"]["telegram"]
+        network = self.config["network"]["telegram"]
         key = botUtils.getProjectRelativePath(network["key"])
         cert = botUtils.getProjectRelativePath(network["cert"])
-        botUtils.startWebHook(updater, config["token"], network["ip"], network["port"], key, cert)
+        botUtils.startWebHook(self.updater, self.config["token"], network["ip"], network["port"], key, cert)
         logger.info("Started Webhook bot")
 
     def startPolling(self):

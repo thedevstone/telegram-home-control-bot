@@ -38,7 +38,8 @@ class MqttClient:
     def on_message(self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
         message = str(msg.payload.decode("utf-8"))
         camera_id = str(msg.topic).split('/')[0]
-        if (message == "motion_start") : self.motionStart(camera_id)
+        status = self.config["analysis"]["status"]
+        if (message == "motion_start" and status) : self.motionStart(camera_id)
 
     def connectAndStart(self):
         server = self.config["network"]["mqtt"]["server"]
