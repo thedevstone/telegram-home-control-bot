@@ -11,8 +11,15 @@ class VideoAnalysis:
     def __init__(self, config):
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.config = config
+        self.cam_to_rstp = dict()
+        self.init_rtsp()
 
-    def analyze(self, video):
+    def init_rtsp(self):
+        for key, value in self.config["network"]["cameras"].items():
+            self.cam_to_rstp[str(key)] = value["rtsp"]
+
+    def analyzeRTSP(self, camera_id: str):
+        rtsp = self.cam_to_rstp[camera_id]
         analysis = self.config["analysis"]
         fps = analysis["fps"]
         seconds = analysis["seconds"]
@@ -24,22 +31,24 @@ class VideoAnalysis:
         found_faces = 0
         frame_index = 0
         cropped_faces = []
-        vcap = cv2.VideoCapture(video)
+        vcap = cv2.VideoCapture(rtsp)
         while(1):
             if (frame_index % frame_step == 0):
                 if (found_faces >= face_number or frame_index >= total_frames):
                     return cropped_faces
-                #print(frame_index) Loading?
+                #print(frame_index) #Loading?
                 ret, frame = vcap.read()
-                gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-                faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
-                for (x,y,w,h) in faces:
-                    frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2) 
-                    crop_face = frame[y : y + h, x : x + w]
-                    cropped_faces.append(crop_face)
-                    #.imshow('Crop face', crop_face)
-                    #cv2.waitKey(0)
-                    found_faces += 1
+                if ret:
+                    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+                    faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
+                    for (x,y,w,h) in faces:
+                        frame = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2) 
+                        crop_face = frame[y : y + h, x : x + w]
+                        #cropped_faces.append(crop_face)            #NO FACES ALL PHOTO
+                        cropped_faces.append(frame)
+                        #cv2.imshow('Crop face', crop_face)
+                        #cv2.waitKey(0)
+                        found_faces += 1
             frame_index += 1
         return cropped_faces
 

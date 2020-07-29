@@ -38,6 +38,7 @@ def initLogger():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, handlers=[handler])
     if os.path.isfile(logname):  # log already exists, roll over!
         handler.doRollover()
+    logging.getLogger().addHandler(logging.StreamHandler())
 
 def loadYaml(file):
     try: return yaml.safe_load(open(file))
@@ -53,7 +54,7 @@ def checkConfiguration(config):
     def checkFileExists(path):
         return os.path.isfile(getProjectRelativePath(path))
     watch_dir = config["watchDirectory"]
-    network = config["network"]
-    network_path = network["key"]
-    cert_path = network["cert"]
-    return checkFileExists(network_path) and checkFileExists(cert_path) and watch_dir
+    telegram_network = config["network"]["telegram"]
+    telegram_network_path = telegram_network["key"]
+    cert_path = telegram_network["cert"]
+    return checkFileExists(telegram_network_path) and checkFileExists(cert_path) and watch_dir
