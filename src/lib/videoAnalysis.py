@@ -38,11 +38,10 @@ class VideoAnalysis:
         fps = analysis["fps"]
         seconds = analysis["seconds"]
         face_number = analysis["faces"]
-        analysis_percent = analysis["sampling_percentage"]
+        anal_fps = analysis["anal_fps"]
         total_frames = fps * seconds
-        frames_to_analyze = total_frames * analysis_percent
-        frame_step = int(total_frames / frames_to_analyze)
-        return (face_number, total_frames, frames_to_analyze, frame_step)
+        frame_step = int(fps / anal_fps)
+        return (face_number, total_frames, frame_step)
 
     def detectFaceHaar(self, frame):
         frameHaar = frame.copy()
@@ -106,17 +105,17 @@ class VideoAnalysis:
 
     def analyzeRTSP(self, camera_id: str):
         rtsp = self.cam_to_rstp[camera_id]
-        face_number, total_frames, frames_to_analyze, frame_step = self.getConfig()
+        face_number, total_frames, frame_step = self.getConfig()
         found_faces = 0
         frame_index = 0
         out_frames = []
         vcap = cv2.VideoCapture(rtsp)
         while(1):
+            ret, frame = vcap.read()
             if (frame_index % frame_step == 0):
                 if (found_faces >= face_number or frame_index >= total_frames):
                     return out_frames
                 print(frame_index) #Loading?
-                ret, frame = vcap.read()
                 if ret:
                     zoomed = self.zoomImage(frame, 0.4)
                     frame_face, n_faces = self.detectFaceOpenCVDnn(zoomed)

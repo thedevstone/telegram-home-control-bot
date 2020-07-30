@@ -85,6 +85,7 @@ class Command(object):
         #Credentials ok
         if (username == splitted[0] and password == splitted[1] and self.authChatIds[chat_id]["banned"] == False):
             self.authChatIds[chat_id]["logged"] = True
+            self.checkAdminLogged()
             message_sent = context.bot.send_message(chat_id, text = "✅ Autentication succeded")
             self.check_last_and_delete(update, context, message_sent)
             log.info("New user logged: {} chat_id: {}".format(username_telegram, chat_id))
@@ -133,7 +134,7 @@ class Command(object):
                     [InlineKeyboardButton(text="GetLog", callback_data=str(botEvents.LOG_CLICK))],
                     [InlineKeyboardButton(text="Number of Faces", callback_data=str(botEvents.FACES_CLICK))],
                     [InlineKeyboardButton(text="Seconds to analyze", callback_data=str(botEvents.SECONDS_CLICK))],
-                    [InlineKeyboardButton(text="Sampling frame percentage", callback_data=str(botEvents.PERCENTAGE_CLICK))],
+                    [InlineKeyboardButton(text="Analysis fps", callback_data=str(botEvents.PERCENTAGE_CLICK))],
                     [InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))]
                     ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -144,6 +145,7 @@ class Command(object):
         update.callback_query.answer()
         chat_id = update.effective_chat.id
         self.authChatIds[chat_id]["logged"] = False
+        self.checkAdminLogged()
         update.effective_message.delete()
         return self.start(update, context)
 
@@ -200,8 +202,9 @@ class Command(object):
     
     def frame_percentage(self, update: Update, context):
         update.callback_query.answer()
-        text = "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"])
-        kb = [[InlineKeyboardButton(round(n, 1), callback_data="percentage:{}".format(n)) for n in np.linspace(0.1, 0.5, 5)],
+        anal_fps = self.config["analysis"]["anal_fps"]
+        text = "Insert the analysis fps [{}] (low is faster)".format(anal_fps)
+        kb = [[InlineKeyboardButton(n, callback_data="anal_fps:{}".format(n)) for n in range(0,10)],
             [InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
@@ -223,13 +226,11 @@ class Command(object):
             seconds = int(value)
             self.config["analysis"]["seconds"] = seconds
             text = "The system will analyze {}s videos".format(seconds)
-        elif (command == "percentage"):
-            perc = float(value)
-            perc_int = int(perc * 100)
-            self.config["analysis"]["sampling_percentage"] = perc
-            total_frames = self.config["analysis"]["seconds"] * self.config["analysis"]["fps"]
-            analyzed_frames = int(total_frames * perc)
-            text = "The system will analyze {} frames per video.\n({}% of all {} frames)".format(analyzed_frames, perc_int, total_frames)
+        elif (command == "anal_fps"):
+            anal_fps = int(value)
+            self.config["analysis"]["anal_fps"] = anal_fps
+            total_frames = self.config["analysis"]["seconds"] * anal_fps
+            text = "The system will analyze at {} fps.\n({} frames will be analyzed)".format(anal_fps, total_frames)
             pass
 
         keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]] #Exit if you want to exit
@@ -246,6 +247,14 @@ class Command(object):
 
     def chatExists(self, chat_id):
         return chat_id in self.authChatIds
+
+    def checkAdminLogged(self):
+        for k1,v1 in self.authChatIds.items():
+            if (v1["logged"] == True and v1["admin"] == True):
+                self.config["analysis"]["status"] = True
+                return
+        self.config["analysis"]["status"] = False
+                
 
     def isAdmin(self, username):
         return username == self.config["users"]["admin"]
