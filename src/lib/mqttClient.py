@@ -45,21 +45,13 @@ class MqttClient:
         server = self.config["network"]["mqtt"]["server"]
         self.client.connect(server, 1883, 60)
         self.client.loop_start()
-
+    
     def disconnectAndStop(self):
         self.client.loop_stop()
         self.client.disconnect()
-    
+        
     def motionStart(self, camera_id):
-        print("motion started")
-        faces = self.videoAnalysis.analyzeRTSP(camera_id)
-        for face in faces:
-            face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-            logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] == True)
-            for chatId, value in logged_users.items():
-                temp_file = BytesIO()
-                temp_file.name = 'temp.png'
-                im = Image.fromarray(face)
-                im.save(temp_file, format="png")
-                temp_file.seek(0)
-                self.bot.send_photo(chatId, temp_file)
+        print("motion detected")
+        self.videoAnalysis.analyzeRTSP(camera_id)
+    
+

@@ -25,11 +25,12 @@ authChatIds = dict()
 
 ########## BOT
 telegram_bot = telegramBot.TelegramBot(config, authChatIds)
-#telegram_bot.startPolling()
-telegram_bot.startWebHook()
+telegram_bot.startPolling()
+#telegram_bot.startWebHook()
 
 ########## OPENCV
-videoAnalysis = videoAnalysis.VideoAnalysis(config)
+videoAnalysis = videoAnalysis.VideoAnalysis(config, authChatIds, telegram_bot.getBot())
+#time.sleep(10)
 #videoAnalysis.analyzeRTSP("yicam-1")
 logger.info("Initialized Video-Analysis module")
 
