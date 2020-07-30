@@ -191,7 +191,7 @@ class Command(object):
     def seconds_to_analyze(self, update: Update, context):
         update.callback_query.answer()
         text = "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"])
-        elem_per_row, row_number, step = 60, 2, 10
+        elem_per_row, row_number, step = 60, 3, 10
         kb = [[InlineKeyboardButton(x, callback_data="seconds:{}".format(x)) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step, step)] for y in range(0, row_number)]
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))])
         kb_markup = InlineKeyboardMarkup(kb)

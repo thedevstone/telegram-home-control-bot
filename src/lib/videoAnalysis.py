@@ -113,7 +113,7 @@ class VideoAnalysis:
         vcap = cv2.VideoCapture(rtsp)
         while(1):
             if (frame_index % frame_step == 0):
-                if (found_faces >= face_number):# or frame_index >= total_frames):
+                if (found_faces >= face_number or frame_index >= total_frames):
                     return out_frames
                 print(frame_index) #Loading?
                 ret, frame = vcap.read()
