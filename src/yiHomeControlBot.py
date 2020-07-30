@@ -30,6 +30,7 @@ telegram_bot.startPolling()
 
 ########## OPENCV
 videoAnalysis = videoAnalysis.VideoAnalysis(config)
+#videoAnalysis.analyzeRTSP("yicam-1")
 logger.info("Initialized Video-Analysis module")
 
 #MQTT

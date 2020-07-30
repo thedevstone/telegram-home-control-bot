@@ -51,6 +51,7 @@ class MqttClient:
         self.client.disconnect()
     
     def motionStart(self, camera_id):
+        print("motion started")
         faces = self.videoAnalysis.analyzeRTSP(camera_id)
         for face in faces:
             face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
