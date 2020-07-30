@@ -191,7 +191,7 @@ class Command(object):
     def seconds_to_analyze(self, update: Update, context):
         update.callback_query.answer()
         text = "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"])
-        elem_per_row, row_number, step = 60, 3, 10
+        elem_per_row, row_number, step = 60, 2, 10
         kb = [[InlineKeyboardButton(x, callback_data="seconds:{}".format(x)) for x in range(y * elem_per_row + step, y * elem_per_row + elem_per_row + step, step)] for y in range(0, row_number)]
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))])
         kb_markup = InlineKeyboardMarkup(kb)
@@ -201,7 +201,7 @@ class Command(object):
     def frame_percentage(self, update: Update, context):
         update.callback_query.answer()
         text = "Insert the percentage of frame to analyze [{}] (low is faster)".format(self.config["analysis"]["sampling_percentage"])
-        kb = [[InlineKeyboardButton(round(n, 1), callback_data="percentage:{}".format(n)) for n in np.linspace(0.1, 1.0, 9)],
+        kb = [[InlineKeyboardButton(round(n, 1), callback_data="percentage:{}".format(n)) for n in np.linspace(0.1, 0.5, 5)],
             [InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
