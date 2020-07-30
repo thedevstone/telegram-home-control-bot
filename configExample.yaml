@@ -22,7 +22,7 @@ credentials:
   password: pass
   username: username
 analysis:
-  status: True
+  status: False
   fps: 20 # Camera fps
   seconds: 60 # How many seconds analyze
   faces: 3 # How many faces to send, configurable at runtime
