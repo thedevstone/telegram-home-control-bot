@@ -161,7 +161,7 @@ class Command(object):
         kb = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         reply_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text = "System switched Off" if (status) else "System switched On", reply_markup=reply_markup)
-        return botStates.RESP_SETTINGS
+        return botStates.END
 
     def get_log(self, update: Update, context):
         update.callback_query.answer()
@@ -179,7 +179,7 @@ class Command(object):
             
             text = text[-line_index:]
             update.callback_query.edit_message_text(text = text, reply_markup=reply_markup)
-        return botStates.RESP_SETTINGS
+        return botStates.END
         
     def face_number(self, update: Update, context):
         update.callback_query.answer()
@@ -188,7 +188,7 @@ class Command(object):
             [InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
-        return botStates.RESP_SETTINGS
+        return botStates.END
 
     def seconds_to_analyze(self, update: Update, context):
         update.callback_query.answer()
@@ -198,7 +198,7 @@ class Command(object):
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))])
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
-        return botStates.RESP_SETTINGS
+        return botStates.END
     
     def frame_percentage(self, update: Update, context):
         update.callback_query.answer()
@@ -208,7 +208,7 @@ class Command(object):
             [InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
-        return botStates.RESP_SETTINGS
+        return botStates.END
 
     def setting_resp(self, update: Update, context):
         setting = update.callback_query.data
