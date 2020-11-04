@@ -158,10 +158,11 @@ class Command(object):
         status = self.config["analysis"]["status"]
         self.config["analysis"]["status"] = not status
         update.callback_query.answer()
-        kb = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
+        #self.exit(update, context) and delete after
+        kb = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))]] #Exit if you want to exit Back to return to menu
         reply_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text = "System switched Off" if (status) else "System switched On", reply_markup=reply_markup)
-        return botStates.END
+        return botStates.SETTINGS #Same state for exit
 
     def get_log(self, update: Update, context):
         update.callback_query.answer()
@@ -179,7 +180,7 @@ class Command(object):
             
             text = text[-line_index:]
             update.callback_query.edit_message_text(text = text, reply_markup=reply_markup)
-        return botStates.END
+        return botStates.RESP_SETTINGS
         
     def face_number(self, update: Update, context):
         update.callback_query.answer()
@@ -188,7 +189,7 @@ class Command(object):
             [InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
-        return botStates.END
+        return botStates.RESP_SETTINGS
 
     def seconds_to_analyze(self, update: Update, context):
         update.callback_query.answer()
@@ -198,7 +199,7 @@ class Command(object):
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))])
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
-        return botStates.END
+        return botStates.RESP_SETTINGS
     
     def frame_percentage(self, update: Update, context):
         update.callback_query.answer()
@@ -208,7 +209,7 @@ class Command(object):
             [InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
         kb_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
-        return botStates.END
+        return botStates.RESP_SETTINGS
 
     def setting_resp(self, update: Update, context):
         setting = update.callback_query.data
@@ -233,7 +234,7 @@ class Command(object):
             text = "The system will analyze at {} fps.\n({} frames will be analyzed)".format(anal_fps, total_frames)
             pass
 
-        keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]] #Exit if you want to exit
+        keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))]] #Exit if you want to exit
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         update.callback_query.answer()
