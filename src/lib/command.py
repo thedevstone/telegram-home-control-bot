@@ -1,36 +1,23 @@
 import logging
 import os
-from io import BytesIO
 
-import requests
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Update
 from telegram.ext import ConversationHandler
 
 from lib import botStates, botEvents
 from lib import botUtils
+from lib.conversation_utils import ConversationUtils
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
 class Command(object):
     # Constructor
-    def __init__(self, config, auth_chat_ids):
+    def __init__(self, config, auth_chat_ids, conversation_utils: ConversationUtils):
         self.config = config
         self.auth_chat_ids = auth_chat_ids
-
-    @staticmethod
-    def check_last_and_delete(_, context, message):
-        if "last_message" in context.user_data and message is not None:
-            context.user_data["last_message"].delete()
-            context.user_data["last_message"] = message
-        elif "last_message" in context.user_data and message is None:
-            context.user_data["last_message"].delete()
-            del context.user_data["last_message"]
-        elif "last_message" not in context.user_data and message is not None:
-            context.user_data["last_message"] = message
-        else:
-            pass  # message not present or not passed
+        self.utils = conversation_utils
 
     # STATE=START
     def start(self, update, context):
@@ -38,7 +25,7 @@ class Command(object):
         chat_id = update.effective_chat.id
         username = update.effective_user["username"]
         # Init user if not exists
-        if not self.chat_exists(chat_id):
+        if not self.utils.chat_exists(chat_id):
             self.init_user(chat_id, username)
         # Store value
         if self.auth_chat_ids[chat_id]["logged"] is True:
@@ -51,19 +38,19 @@ class Command(object):
                                                     "https://github.com/Giulianini/yi-hack-control-bot)\nPlease "
                                                     "login",
                                                parse_mode=ParseMode.MARKDOWN_V2)
-            self.check_last_and_delete(update, context, message)
+            self.utils.check_last_and_delete(update, context, message)
             return botStates.NOT_LOGGED
 
     def login(self, update, context):
         message = update.message.reply_text(text="Send me bot credentials: <username>:<password>", reply_markup=None)
-        self.check_last_and_delete(update, context, message)
+        self.utils.check_last_and_delete(update, context, message)
         update.message.delete()
         return botStates.CREDENTIALS
 
     # STATE=CREDENTIALS
-    def credentials(self, update, context):
+    def credentials(self, update: Update, context):
         # User and chat id
-        username_telegram = update.effective_user["username"]
+        user = update.effective_user
         chat_id = update.effective_chat.id
         # Get config
         credentials = self.config["credentials"]
@@ -77,11 +64,11 @@ class Command(object):
         # Credentials ok
         if username == splitted[0] and password == splitted[1] and self.auth_chat_ids[chat_id]["banned"] is False:
             self.auth_chat_ids[chat_id]["logged"] = True
-            self.check_admin_logged()
+            self.utils.check_admin_logged()
             message_sent = context.bot.send_message(chat_id, text="✅ Authentication succeeded")
-            self.check_last_and_delete(update, context, message_sent)
-            logger.info("New user logged: {} chat_id: {}".format(username_telegram, chat_id))
-            # self.logAdmin("New user logged: {} chat_id: {}".format(username_telegram, chat_id), context)
+            self.utils.check_last_and_delete(update, context, message_sent)
+            logger.info("New user logged: {} chat_id: {}".format(user.username, chat_id))
+            self.utils.log_admin("New user logged: {} chat_id: {}".format(user.username, chat_id), update, context)
             return botStates.LOGGED
         else:  # Credentials not ok
             self.auth_chat_ids[chat_id]["logged"] = False
@@ -92,20 +79,20 @@ class Command(object):
             # User banned
             if self.auth_chat_ids[chat_id]["banned"] is True:
                 message_sent = context.bot.send_message(chat_id, text="😢 You are banned. Bye Bye")
-                self.check_last_and_delete(update, context, message_sent)
+                self.utils.check_last_and_delete(update, context, message_sent)
                 logger.warning("User: {} banned with chat_id: {}".format(username, chat_id))
-                # self.logAdmin("User: {} banned with chat_id: {}".format(username, chat_id), context)
+                self.utils.log_admin("User: {} banned with chat_id: {}".format(username, chat_id), update, context)
                 return ConversationHandler.END
             else:
                 message_sent = context.bot.send_message(chat_id,
                                                         text="❌ Authentication failed.\nSend me your credentials "
                                                              "again: <username>:<password>")
-                self.check_last_and_delete(update, context, message_sent)
-                logger.warning("New user: {} try authenticate with chat_id: {}".format(username_telegram, chat_id))
+                self.utils.check_last_and_delete(update, context, message_sent)
+                logger.warning("New user: {} try authenticate with chat_id: {}".format(user.username, chat_id))
             return botStates.CREDENTIALS
 
     def show_logged_menu(self, update, context):
-        self.check_last_and_delete(update, context, None)
+        self.utils.check_last_and_delete(update, context, None)
         update.message.delete()
         keyboard = [[InlineKeyboardButton(text="Settings", callback_data=str(botEvents.SETTINGS_CLICK))],
                     [InlineKeyboardButton(text="Logout", callback_data=str(botEvents.LOGOUT_CLICK))],
@@ -119,9 +106,9 @@ class Command(object):
         update.callback_query.answer()
         username_telegram = update.effective_user["username"]
         status = self.config["analysis"]["status"]
-        if not self.is_admin(username_telegram):
+        if not self.utils.is_admin(username_telegram):
             message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
-            self.check_last_and_delete(update, context, message_sent)
+            self.utils.check_last_and_delete(update, context, message_sent)
             return botStates.LOGGED
         keyboard = [[InlineKeyboardButton(text="Switch Off" if status else "Switch On",
                                           callback_data=str(botEvents.TOGGLE_CLICK))],
@@ -135,41 +122,13 @@ class Command(object):
         update.callback_query.edit_message_text(text="Select setting:", reply_markup=reply_markup)
         return botStates.SETTINGS
 
-    def show_snapshot(self, update: Update, context):
-        self.check_last_and_delete(update, context, None)
-        update.message.delete()
-        username_telegram = update.effective_user["username"]
-        if not self.is_admin(username_telegram):
-            message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
-            self.check_last_and_delete(update, context, message_sent)
-            return botStates.LOGGED
-        kb = []
-        for key, value in self.config["network"]["cameras"].items():
-            kb.append([InlineKeyboardButton("{}".format(key), callback_data="{}".format(key))])
-        kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))])
-        reply_markup = InlineKeyboardMarkup(kb)
-        update.message.reply_text(text="Select setting:", reply_markup=reply_markup)
-        return botStates.LOGGED
-
-    def snapshot_resp(self, update: Update, _):
-        cam_name = update.callback_query.data
-        ip = self.config["network"]["cameras"][cam_name]["ip"]
-        update.callback_query.answer()
-        try:
-            response = requests.get("http://{}/cgi-bin/snapshot.sh".format(ip), timeout=5)
-            update.effective_message.reply_photo(BytesIO(response.content), caption=cam_name)
-        except requests.exceptions.Timeout:
-            pass
-        update.effective_message.delete()
-        return botStates.LOGGED
-
     def logout(self, update: Update, context):
         update.callback_query.answer()
         update.callback_query.edit_message_text(text="*Logged out*", parse_mode=ParseMode.MARKDOWN_V2)
         chat_id = update.effective_chat.id
         self.auth_chat_ids[chat_id]["logged"] = False
-        self.check_admin_logged()
-        self.check_last_and_delete(update, context, update.effective_message)
+        self.utils.check_admin_logged()
+        self.utils.check_last_and_delete(update, context, update.effective_message)
         # update.effective_message.delete()
         return botStates.NOT_LOGGED  # return self.start()
 
@@ -275,24 +234,6 @@ class Command(object):
         update.callback_query.edit_message_text(text=text, reply_markup=reply_markup)
         return botStates.LOGGED
 
-    def log_admin(self, msg, context):
-        for k1, v1 in self.auth_chat_ids.items():
-            if v1["username"] == self.config["users"]["admin"]:
-                context.bot.send_message(k1, text=msg)
-
-    def chat_exists(self, chat_id):
-        return chat_id in self.auth_chat_ids
-
-    def check_admin_logged(self):
-        for k1, v1 in self.auth_chat_ids.items():
-            if v1["logged"] is True and v1["admin"] is True:
-                self.config["analysis"]["status"] = True
-                return
-        self.config["analysis"]["status"] = False
-
-    def is_admin(self, username):
-        return username == self.config["users"]["admin"]
-
     def init_user(self, chat_id, username):
         if chat_id not in self.auth_chat_ids:
             self.auth_chat_ids[chat_id] = dict()
@@ -300,4 +241,4 @@ class Command(object):
             self.auth_chat_ids[chat_id]["tries"] = 1
             self.auth_chat_ids[chat_id]["logged"] = False
             self.auth_chat_ids[chat_id]["banned"] = False
-            self.auth_chat_ids[chat_id]["admin"] = self.is_admin(username)
+            self.auth_chat_ids[chat_id]["admin"] = self.utils.is_admin(username)
