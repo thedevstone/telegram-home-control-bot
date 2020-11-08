@@ -143,13 +143,12 @@ class Command(object):
         # update.effective_message.delete()
         return botStates.NOT_LOGGED  # return self.start()
 
-    @staticmethod
-    def exit(update: Update):
+    def exit(self, update: Update, _):
         update.callback_query.answer()
         update.effective_message.delete()
         return botStates.END
 
-    def toggle(self, update: Update):
+    def toggle(self, update: Update, _):
         status = self.config["analysis"]["status"]
         self.config["analysis"]["status"] = not status
         update.callback_query.answer()
@@ -161,8 +160,7 @@ class Command(object):
                                                 reply_markup=reply_markup)
         return botStates.SETTINGS  # Same state for exit
 
-    @staticmethod
-    def get_log(update: Update):
+    def get_log(self, update: Update, _):
         update.callback_query.answer()
         with open(botUtils.get_project_relative_path("app.log")) as f:
             keyboard = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.BACK_CLICK))]]
@@ -183,7 +181,7 @@ class Command(object):
             update.callback_query.edit_message_text(text=long_text, reply_markup=reply_markup)
         return botStates.RESP_SETTINGS
 
-    def face_number(self, update: Update):
+    def face_number(self, update: Update, _):
         update.callback_query.answer()
         text = "Insert the number of faces to detect [{}]".format(self.config["analysis"]["faces"])
         kb = [[InlineKeyboardButton("{}".format(n), callback_data="face:{}".format(n)) for n in range(0, 6)],
@@ -192,7 +190,7 @@ class Command(object):
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
         return botStates.RESP_SETTINGS
 
-    def seconds_to_analyze(self, update: Update):
+    def seconds_to_analyze(self, update: Update, _):
         update.callback_query.answer()
         text = "Insert the number of seconds to analyze [{}] (low is faster)".format(self.config["analysis"]["seconds"])
         elem_per_row, row_number, step = 60, 2, 10
@@ -204,7 +202,7 @@ class Command(object):
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
         return botStates.RESP_SETTINGS
 
-    def frame_percentage(self, update: Update):
+    def frame_percentage(self, update: Update, _):
         update.callback_query.answer()
         anal_fps = self.config["analysis"]["anal_fps"]
         text = "Insert the analysis fps [{}] (low is faster)".format(anal_fps)
@@ -214,7 +212,7 @@ class Command(object):
         update.callback_query.edit_message_text(text=text, reply_markup=kb_markup)
         return botStates.RESP_SETTINGS
 
-    def setting_resp(self, update: Update):
+    def setting_resp(self, update: Update, _):
         setting = update.callback_query.data
         text = ""
         data = setting.split(":")
