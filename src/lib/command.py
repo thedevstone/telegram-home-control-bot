@@ -135,11 +135,13 @@ class Command(object):
 
     def logout(self, update: Update, context):
         update.callback_query.answer()
+        update.callback_query.edit_message_text(text="*Logged out*", parse_mode=ParseMode.MARKDOWN_V2)
         chat_id = update.effective_chat.id
         self.auth_chat_ids[chat_id]["logged"] = False
         self.check_admin_logged()
-        update.effective_message.delete()
-        return self.start(update, context)
+        self.check_last_and_delete(update, context, update.effective_message)
+        # update.effective_message.delete()
+        return botStates.NOT_LOGGED  # return self.start()
 
     @staticmethod
     def exit(update: Update):
