@@ -1,6 +1,8 @@
 import logging
 import os
+from io import BytesIO
 
+import requests
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Update
 from telegram.ext import ConversationHandler
@@ -133,6 +135,34 @@ class Command(object):
         update.callback_query.edit_message_text(text="Select setting:", reply_markup=reply_markup)
         return botStates.SETTINGS
 
+    def show_snapshot(self, update: Update, context):
+        self.check_last_and_delete(update, context, None)
+        update.message.delete()
+        username_telegram = update.effective_user["username"]
+        if not self.is_admin(username_telegram):
+            message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
+            self.check_last_and_delete(update, context, message_sent)
+            return botStates.LOGGED
+        kb = []
+        for key, value in self.config["network"]["cameras"].items():
+            kb.append([InlineKeyboardButton("{}".format(key), callback_data="{}".format(key))])
+        kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))])
+        reply_markup = InlineKeyboardMarkup(kb)
+        update.message.reply_text(text="Select setting:", reply_markup=reply_markup)
+        return botStates.LOGGED
+
+    def snapshot_resp(self, update: Update, _):
+        cam_name = update.callback_query.data
+        ip = self.config["network"]["cameras"][cam_name]["ip"]
+        update.callback_query.answer()
+        try:
+            response = requests.get("http://{}/cgi-bin/snapshot.sh".format(ip), timeout=5)
+            update.effective_message.reply_photo(BytesIO(response.content), caption=cam_name)
+        except requests.exceptions.Timeout:
+            pass
+        update.effective_message.delete()
+        return botStates.LOGGED
+
     def logout(self, update: Update, context):
         update.callback_query.answer()
         update.callback_query.edit_message_text(text="*Logged out*", parse_mode=ParseMode.MARKDOWN_V2)
@@ -143,7 +173,8 @@ class Command(object):
         # update.effective_message.delete()
         return botStates.NOT_LOGGED  # return self.start()
 
-    def exit(self, update: Update, _):
+    @staticmethod
+    def exit(update: Update, _):
         update.callback_query.answer()
         update.effective_message.delete()
         return botStates.END
@@ -160,7 +191,8 @@ class Command(object):
                                                 reply_markup=reply_markup)
         return botStates.SETTINGS  # Same state for exit
 
-    def get_log(self, update: Update, _):
+    @staticmethod
+    def get_log(update: Update, _):
         update.callback_query.answer()
         with open(botUtils.get_project_relative_path("app.log")) as f:
             keyboard = [[InlineKeyboardButton(text="⬅️", callback_data=str(botEvents.BACK_CLICK))]]

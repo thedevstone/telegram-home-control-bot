@@ -1,7 +1,7 @@
 import logging
 import os
 
-from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, CallbackQueryHandler, Filters
+from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram.ext import Updater
 
 from lib import command, botStates, botEvents, botUtils
@@ -61,13 +61,27 @@ class TelegramBot:
             }
         )
 
+        self.snapshot_handler = ConversationHandler(
+            entry_points=[
+                CallbackQueryHandler(self.command.snapshot_resp, pattern="^(?!" + str(botEvents.EXIT_CLICK) + ").*")],
+            states={},
+            fallbacks=[CallbackQueryHandler(self.command.exit, pattern='^' + str(botEvents.EXIT_CLICK) + '$')],
+            per_message=True,
+            map_to_parent={
+                botStates.LOGGED: botStates.LOGGED,
+                botStates.NOT_LOGGED: botStates.NOT_LOGGED
+            }
+        )
+
         # Level 0
         self.conversationHandler = ConversationHandler(
             entry_points=[CommandHandler('start', callback=self.command.start)],
             states={
                 botStates.NOT_LOGGED: [CommandHandler('login', callback=self.command.login)],
                 botStates.CREDENTIALS: [MessageHandler(filters=Filters.text, callback=self.command.credentials)],
-                botStates.LOGGED: [CommandHandler('menu', callback=self.command.show_logged_menu), self.menu_handler],
+                botStates.LOGGED: [CommandHandler('menu', callback=self.command.show_logged_menu),
+                                   CommandHandler('snapshot', callback=self.command.show_snapshot),
+                                   self.menu_handler, self.snapshot_handler],
             },
             fallbacks=[CallbackQueryHandler(self.command.start, pattern='^' + str(botEvents.EXIT_CLICK) + '$')]
         )
