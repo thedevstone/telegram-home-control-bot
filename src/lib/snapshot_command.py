@@ -32,7 +32,7 @@ class SnapshotCommand(object):
             kb.append([InlineKeyboardButton("{}".format(key), callback_data="{}".format(key))])
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))])
         reply_markup = InlineKeyboardMarkup(kb)
-        update.message.reply_text(text="Select setting:", reply_markup=reply_markup)
+        update.message.reply_text(text="Select camera:", reply_markup=reply_markup)
         return botStates.LOGGED
 
     def snapshot_resp(self, update: Update, _):
