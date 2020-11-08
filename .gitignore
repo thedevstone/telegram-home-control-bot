@@ -17,3 +17,6 @@ config.yaml
 
 # Macos
 .DS_Store
+
+# Idea
+.idea

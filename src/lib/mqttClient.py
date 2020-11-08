@@ -1,29 +1,21 @@
-import os
-import glob
-from lib import botUtils, videoAnalysis
-import threading
-import time
-import matplotlib.pyplot as plt
-import matplotlib
-import cv2
 import logging
-import telegram
-from PIL import Image
-from io import BytesIO
+import os
+
 import paho.mqtt.client as mqtt
 
 logger = logging.getLogger(os.path.basename(__file__))
 
+
 class MqttClient:
-    def __init__(self, videoAnalysis, authChatIds, bot, config):
-        self.videoAnalysis = videoAnalysis
-        self.authChatIds = authChatIds
+    def __init__(self, video_analysis, auth_chat_ids, bot, config):
+        self.videoAnalysis = video_analysis
+        self.authChatIds = auth_chat_ids
         self.bot = bot
         self.config = config
         self.client = mqtt.Client(client_id="Bot", clean_session=True)
-        self.initMqttClient()
-        
-    def initMqttClient(self):
+        self.init_mqtt_client()
+
+    def init_mqtt_client(self):
         username = self.config["network"]["mqtt"]["username"]
         password = self.config["network"]["mqtt"]["password"]
         self.client.username_pw_set(username=username, password=password)
@@ -39,19 +31,18 @@ class MqttClient:
         message = str(msg.payload.decode("utf-8"))
         camera_id = str(msg.topic).split('/')[0]
         status = self.config["analysis"]["status"]
-        if (message == "motion_start" and status) : self.motionStart(camera_id)
+        if message == "motion_start" and status:
+            self.motion_start(camera_id)
 
-    def connectAndStart(self):
+    def connect_and_start(self):
         server = self.config["network"]["mqtt"]["server"]
         self.client.connect(server, 1883, 60)
         self.client.loop_start()
-    
-    def disconnectAndStop(self):
+
+    def disconnect_and_stop(self):
         self.client.loop_stop()
         self.client.disconnect()
-        
-    def motionStart(self, camera_id):
-        print("motion detected")
-        self.videoAnalysis.analyzeRTSP(camera_id)
-    
 
+    def motion_start(self, camera_id):
+        print("motion detected")
+        self.videoAnalysis.analyze_rtsp(camera_id)

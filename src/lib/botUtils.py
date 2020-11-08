@@ -1,12 +1,15 @@
 import logging
-from logging.handlers import RotatingFileHandler
-import yaml
 import os
+import sys
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
+
+import yaml
 
 logger = logging.getLogger(os.path.basename(__file__))
 
-def startWebHook(updater, token, ip, port, key, cert):
+
+def start_web_hook(updater, token, ip, port, key, cert):
     r"""Start webhook.
             Parameters
             ----------
@@ -23,38 +26,48 @@ def startWebHook(updater, token, ip, port, key, cert):
             cert : certificate
                 Certificate.
     """
-    ########### START WEBHOOK ##############
+    # START WEBHOOK
     updater.start_webhook(listen='0.0.0.0',
-                        port = port,
-                        url_path = token,
-                        key = key,
-                        cert = cert,
-                        webhook_url='https://{}:{}/{}'.format(ip, port, token))
+                          port=port,
+                          url_path=token,
+                          key=key,
+                          cert=cert,
+                          webhook_url='https://{}:{}/{}'.format(ip, port, token))
 
-def initLogger():
-    logname = getProjectRelativePath("app.log")
-    handler = RotatingFileHandler(logname, mode="w", maxBytes=100000, backupCount=1)
+
+def init_logger():
+    log_name = get_project_relative_path("app.log")
+    handler = RotatingFileHandler(log_name, mode="w", maxBytes=100000, backupCount=1)
     handler.suffix = "%Y%m%d"
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, handlers=[handler])
-    if os.path.isfile(logname):  # log already exists, roll over!
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                        level=logging.INFO)
+    if os.path.isfile(log_name):  # log already exists, roll over!
         handler.doRollover()
     logging.getLogger().addHandler(logging.StreamHandler())
+    logging.getLogger().addHandler(handler)
 
-def loadYaml(file):
-    try: return yaml.safe_load(open(file))
-    except yaml.YAMLError as e: print(e), os._exit(1)
-    
-def dumpYaml(data, file):
+
+def load_yaml(file):
+    try:
+        return yaml.safe_load(open(file))
+    except yaml.YAMLError as e:
+        print(e), sys.exit(1)
+
+
+def dump_yaml(data, file):
     yaml.dump(data, open(file, 'w'), default_flow_style=False)
 
-def getProjectRelativePath(path):
+
+def get_project_relative_path(path):
     return Path.joinpath(Path(os.getcwd()).parent, path)
 
-def checkConfiguration(config):
-    def checkFileExists(path):
-        return os.path.isfile(getProjectRelativePath(path))
+
+def check_configuration(config):
+    def check_file_exists(path):
+        return os.path.isfile(get_project_relative_path(path))
+
     watch_dir = config["watchDirectory"]
     telegram_network = config["network"]["telegram"]
     telegram_network_path = telegram_network["key"]
     cert_path = telegram_network["cert"]
-    return checkFileExists(telegram_network_path) and checkFileExists(cert_path) and watch_dir
+    return check_file_exists(telegram_network_path) and check_file_exists(cert_path) and watch_dir

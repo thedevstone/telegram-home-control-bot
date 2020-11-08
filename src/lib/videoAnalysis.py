@@ -1,20 +1,17 @@
-import numpy as np
-import cv2
-import os
-from lib import botUtils #Remove to test this class
-import lib.botUtils
 import logging
-from telegram import ParseMode
-from PIL import Image
+import os
 from io import BytesIO
-from matplotlib import pyplot as plt
+
+import cv2
+from PIL import Image
 
 logger = logging.getLogger(os.path.basename(__file__))
 
+
 class VideoAnalysis:
-    def __init__(self, config, authChatIds, bot):
+    def __init__(self, config, auth_chat_ids, bot):
         self.config = config
-        self.authChatIds = authChatIds
+        self.authChatIds = auth_chat_ids
         self.bot = bot
         self.cam_to_rstp = dict()
         self.init_rtsp()
@@ -23,49 +20,51 @@ class VideoAnalysis:
         for key, value in self.config["network"]["cameras"].items():
             self.cam_to_rstp[str(key)] = value["rtsp"]
 
-    def zoomImage(self, frame, zoom):
-        #get the webcam size
+    @staticmethod
+    def zoom_image(frame, zoom):
+        # get the webcam size
         height, width, channels = frame.shape
-        #prepare the crop
-        centerX,centerY=int(height/2),int(width/2)
-        radiusX,radiusY = int(centerX*zoom), int(centerY*zoom)
+        # prepare the crop
+        center_x, center_y = int(height / 2), int(width / 2)
+        radius_x, radius_y = int(center_x * zoom), int(center_y * zoom)
 
-        minX,maxX=centerX-radiusX,centerX+radiusX
-        minY,maxY=centerY-radiusY,centerY+radiusY
+        min_x, max_x = center_x - radius_x, center_x + radius_x
+        min_y, max_y = center_y - radius_y, center_y + radius_y
 
-        cropped = frame[minX:maxX, minY:maxY]
-        resized_cropped = cv2.resize(cropped, (width, height), cv2.INTER_CUBIC)
+        cropped = frame[min_x:max_x, min_y:max_y]
+        # resized_cropped = cv2.resize(cropped, (width, height), cv2.INTER_CUBIC)
         return cropped
 
-    def analyzeRTSP(self, camera_id: str):
+    def analyze_rtsp(self, camera_id: str):
         rtsp = self.cam_to_rstp[camera_id]
-        #Warn user
-        logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] == True)
+        # Warn user
+        logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] is True)
         for chatId, value in logged_users.items():
-            self.bot.send_message(chatId,text="😳Motion detected❗\n{}".format(rtsp))
-        #Init
+            self.bot.send_message(chatId, text="😳Motion detected❗\n{}".format(rtsp))
+        # Init
         analysis = self.config["analysis"]
         fps = analysis["fps"]
         seconds = analysis["seconds"]
         face_number = analysis["faces"]
         total_frames = fps * seconds
-        frame_separation = int(total_frames / face_number) 
+        frame_separation = int(total_frames / face_number)
         frame_index = 0
         out_image_index = 0
-        vcap = cv2.VideoCapture(rtsp)
-        while(1):
-            ret, frame = vcap.read()
-            if (frame_index < total_frames):
-                if (frame_index % frame_separation == 0 and ret):
-                    self.sendImage(frame, out_image_index)
+        v_capture = cv2.VideoCapture(rtsp)
+        while 1:
+            ret, frame = v_capture.read()
+            if frame_index < total_frames:
+                if frame_index % frame_separation == 0 and ret:
+                    self.send_image(frame, out_image_index)
                     out_image_index += 1
                 frame_index += 1
-            else: break
-        vcap.release()
+            else:
+                break
+        v_capture.release()
 
-    def sendImage(self, image, index):
+    def send_image(self, image, index):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] == True)
+        logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] is True)
         for chatId, value in logged_users.items():
             temp_file = BytesIO()
             temp_file.name = 'MotionDetection{}.png'.format(index)
