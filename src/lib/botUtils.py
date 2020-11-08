@@ -43,7 +43,7 @@ def init_logger():
                         level=logging.INFO)
     if os.path.isfile(log_name):  # log already exists, roll over!
         handler.doRollover()
-    logging.getLogger().addHandler(logging.StreamHandler())
+    # logging.getLogger().addHandler(logging.StreamHandler())
     logging.getLogger().addHandler(handler)
 
 
