@@ -89,3 +89,13 @@ class TelegramBot:
 
     def get_bot(self):
         return self.bot
+
+    def send_image_to_logged_users(self, image):
+        logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] is True)
+        for chatId, value in logged_users.items():
+            self.bot.send_photo(chatId, image)
+
+    def send_msg_to_logged_users(self, msg):
+        logged_users = dict((k, v) for k, v in self.authChatIds.items() if v["logged"] is True)
+        for chatId, value in logged_users.items():
+            self.bot.send_message(chatId, text=msg)

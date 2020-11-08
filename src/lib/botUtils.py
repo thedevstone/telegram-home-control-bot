@@ -10,28 +10,7 @@ logger = logging.getLogger(os.path.basename(__file__))
 
 
 def start_web_hook(updater, token, ip, port, key, cert):
-    r"""Start webhook.
-            Parameters
-            ----------
-            updater : updater
-                Telegram updater
-            token : token
-                Bot token
-            ip : ip
-                Public IP
-            port : port
-                Bot port 88
-            key : key
-                Cert key.
-            cert : certificate
-                Certificate.
-    """
-    # START WEBHOOK
-    updater.start_webhook(listen='0.0.0.0',
-                          port=port,
-                          url_path=token,
-                          key=key,
-                          cert=cert,
+    updater.start_webhook(listen='0.0.0.0', port=port, url_path=token, key=key, cert=cert,
                           webhook_url='https://{}:{}/{}'.format(ip, port, token))
 
 
@@ -66,7 +45,6 @@ def check_configuration(config):
     def check_file_exists(path):
         return os.path.isfile(get_project_relative_path(path))
 
-    watch_dir = config["watchDirectory"]
     telegram_network = config["network"]["telegram"]
     telegram_network_path = telegram_network["key"]
     cert_path = telegram_network["cert"]

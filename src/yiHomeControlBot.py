@@ -25,7 +25,7 @@ if __name__ == '__main__':
     telegram_bot.start_polling()
 
     # OPENCV
-    videoAnalysis = videoAnalysis.VideoAnalysis(config, authChatIds, telegram_bot.get_bot())
+    videoAnalysis = videoAnalysis.VideoAnalysis(config, authChatIds, telegram_bot)
     logger.info("Initialized Video-Analysis module")
 
     # MQTT
