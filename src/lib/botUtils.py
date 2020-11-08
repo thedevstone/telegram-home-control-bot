@@ -48,4 +48,4 @@ def check_configuration(config):
     telegram_network = config["network"]["telegram"]
     telegram_network_path = telegram_network["key"]
     cert_path = telegram_network["cert"]
-    return check_file_exists(telegram_network_path) and check_file_exists(cert_path) and watch_dir
+    return check_file_exists(telegram_network_path) and check_file_exists(cert_path)

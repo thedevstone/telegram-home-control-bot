@@ -25,7 +25,7 @@ class VideoAnalysis:
     def analyze_rtsp(self, camera_id: str):
         rtsp = self.cam_to_rstp[camera_id]
         # Warn user
-        self.telegram_bot.send_msg_to_logged_users("😳Motion detected❗\n{}".format(rtsp))
+        self.telegram_bot.send_msg_to_logged_users("😳Motion detected from {}❗".format(camera_id))
         # Init
         analysis = self.config["analysis"]
         fps = analysis["fps"]

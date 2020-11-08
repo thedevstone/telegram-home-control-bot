@@ -44,5 +44,4 @@ class MqttClient:
         self.client.disconnect()
 
     def motion_start(self, camera_id):
-        print("motion detected")
         self.videoAnalysis.analyze_rtsp(camera_id)
