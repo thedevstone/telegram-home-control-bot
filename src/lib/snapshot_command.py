@@ -7,24 +7,22 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Update
 
 from lib import botStates, botEvents
-from lib.conversation_utils import ConversationUtils
+from lib.bot_utils import BotUtils
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
 class SnapshotCommand(object):
     # Constructor
-    def __init__(self, config, auth_chat_ids, conversation_utils: ConversationUtils):
+    def __init__(self, config, auth_chat_ids, conversation_utils: BotUtils):
         self.config = config
         self.auth_chat_ids = auth_chat_ids
         self.utils = conversation_utils
 
     def show_snapshot(self, update: Update, context):
-        self.utils.check_last_and_delete(update, context, None)
-        update.message.delete()
-        username_telegram = update.effective_user["username"]
+        username_telegram = update.effective_user.username
         if not self.utils.is_admin(username_telegram):
-            message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
+            message_sent = update.message.reply_text(text="🔐 You are not an admin")
             self.utils.check_last_and_delete(update, context, message_sent)
             return botStates.LOGGED
         kb = []

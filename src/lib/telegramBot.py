@@ -1,10 +1,10 @@
 import logging
 import os
 
-from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import CommandHandler, ConversationHandler, CallbackQueryHandler
 from telegram.ext import Updater
 
-from lib import command, botStates, botEvents, botUtils, conversation_utils, snapshot_command
+from lib import command, botStates, botEvents, utils, bot_utils, snapshot_command
 
 logger = logging.getLogger(os.path.basename(__file__))
 
@@ -19,7 +19,7 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
 
         # Commands
-        self.utils = conversation_utils.ConversationUtils(config, auth_chat_ids)
+        self.utils = bot_utils.BotUtils(config, auth_chat_ids, self.bot)
         self.command = command.Command(config, auth_chat_ids, self.utils)
         self.snapshot = snapshot_command.SnapshotCommand(config, auth_chat_ids, self.utils)
 
@@ -51,7 +51,6 @@ class TelegramBot:
         self.menu_handler = ConversationHandler(
             entry_points=[
                 CallbackQueryHandler(self.command.show_settings, pattern='^' + str(botEvents.SETTINGS_CLICK) + '$'),
-                CallbackQueryHandler(self.command.logout, pattern='^' + str(botEvents.LOGOUT_CLICK) + '$'),
             ],
             states={
                 botStates.SETTINGS: [self.settings_handler]
@@ -81,24 +80,22 @@ class TelegramBot:
         self.conversationHandler = ConversationHandler(
             entry_points=[CommandHandler('start', callback=self.command.start)],
             states={
-                botStates.NOT_LOGGED: [CommandHandler('login', callback=self.command.login)],
-                botStates.CREDENTIALS: [MessageHandler(filters=Filters.text, callback=self.command.credentials)],
+                botStates.NOT_LOGGED: [CommandHandler('start', callback=self.command.start)],
                 botStates.LOGGED: [CommandHandler('menu', callback=self.command.show_logged_menu),
                                    CommandHandler('snapshot', callback=self.snapshot.show_snapshot),
                                    self.menu_handler, self.snapshot_handler],
             },
-            fallbacks=[CallbackQueryHandler(self.command.start, pattern='^' + str(botEvents.EXIT_CLICK) + '$')]
+            fallbacks=[CallbackQueryHandler(self.command.exit, pattern='^' + str(botEvents.EXIT_CLICK) + '$')]
         )
-
         # Init handlers
         self.dispatcher.add_handler(self.conversationHandler)
 
     def start_web_hook(self):
         # START WEBHOOK
         network = self.config["network"]["telegram"]
-        key = botUtils.get_project_relative_path(network["key"])
-        cert = botUtils.get_project_relative_path(network["cert"])
-        botUtils.start_web_hook(self.updater, self.config["token"], network["ip"], network["port"], key, cert)
+        key = utils.get_project_relative_path(network["key"])
+        cert = utils.get_project_relative_path(network["cert"])
+        utils.start_web_hook(self.updater, self.config["token"], network["ip"], network["port"], key, cert)
         logger.info("Started Webhook bot")
 
     def start_polling(self):
@@ -109,11 +106,11 @@ class TelegramBot:
         return self.bot
 
     def send_image_to_logged_users(self, image):
-        logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["logged"] is True)
+        logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
         for chatId, value in logged_users.items():
             self.bot.send_photo(chatId, image)
 
     def send_msg_to_logged_users(self, msg):
-        logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["logged"] is True)
+        logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
         for chatId, value in logged_users.items():
             self.bot.send_message(chatId, text=msg)

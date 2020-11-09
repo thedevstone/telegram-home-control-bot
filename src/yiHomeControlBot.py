@@ -1,7 +1,7 @@
 import logging
 import os
 
-from lib import telegramBot, botUtils, videoAnalysis, mqttClient
+from lib import telegramBot, utils, videoAnalysis, mqttClient
 
 if __name__ == '__main__':
     # WORKING DIRECTORY
@@ -10,10 +10,10 @@ if __name__ == '__main__':
     os.chdir(d_name)
 
     # INIT
-    botUtils.init_logger()
+    utils.init_logger()
     logger = logging.getLogger(os.path.basename(__file__))
-    config = botUtils.load_yaml("../config.yaml")
-    botUtils.check_configuration(config)
+    config = utils.load_yaml("../config.yaml")
+    utils.check_configuration(config)
     logger.info("Configuration loaded")
 
     # DB

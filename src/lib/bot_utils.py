@@ -1,16 +1,17 @@
 import logging
 import os
 
-from telegram import Update
+from telegram import Update, Bot
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
-class ConversationUtils:
-    def __init__(self, config, auth_chat_ids):
+class BotUtils:
+    def __init__(self, config, auth_chat_ids, bot: Bot):
         # Constructor
         self.config = config
         self.auth_chat_ids = auth_chat_ids
+        self.bot = bot
 
     @staticmethod
     def check_last_and_delete(_, context, message):
@@ -26,7 +27,7 @@ class ConversationUtils:
             pass  # message not present or not passed
 
     def is_admin(self, username):
-        return username == self.config["users"]["admin"]
+        return username == self.config["admin"]
 
     def log_admin(self, msg, update: Update, context):
         if not self.is_admin(update.effective_user.username):
@@ -34,12 +35,9 @@ class ConversationUtils:
                 if v1["username"] == self.config["users"]["admin"]:
                     context.bot.send_message(k1, text=msg)
 
-    def chat_exists(self, chat_id):
-        return chat_id in self.auth_chat_ids
-
-    def check_admin_logged(self):
+    def check_admin_logged(self) -> bool:
         for k1, v1 in self.auth_chat_ids.items():
-            if v1["logged"] is True and v1["admin"] is True:
-                self.config["analysis"]["status"] = True
-                return
-        self.config["analysis"]["status"] = False
+            return v1["active"] is True and v1["admin"] is True
+
+    def is_allowed(self, username) -> bool:
+        return username in self.config["users"]

@@ -3,99 +3,48 @@ import os
 
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Update
-from telegram.ext import ConversationHandler
 
 from lib import botStates, botEvents
-from lib import botUtils
-from lib.conversation_utils import ConversationUtils
+from lib import utils
+from lib.bot_utils import BotUtils
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
 class Command(object):
     # Constructor
-    def __init__(self, config, auth_chat_ids, conversation_utils: ConversationUtils):
+    def __init__(self, config, auth_chat_ids, conversation_utils: BotUtils):
         self.config = config
         self.auth_chat_ids = auth_chat_ids
         self.utils = conversation_utils
 
     # STATE=START
-    def start(self, update, context):
-        # return LOGGED
+    def start(self, update: Update, context):
         chat_id = update.effective_chat.id
-        username = update.effective_user["username"]
-        # Init user if not exists
-        if not self.utils.chat_exists(chat_id):
-            self.init_user(chat_id, username)
-        # Store value
-        if self.auth_chat_ids[chat_id]["logged"] is True:
-            update.callback_query.answer()
-            update.effective_message.delete()
-            return botStates.LOGGED
-        else:
-            message = context.bot.send_message(chat_id,
-                                               text="Welcome to *Home Control Bot* by *NiNi* [link]("
-                                                    "https://github.com/Giulianini/yi-hack-control-bot)\nPlease "
-                                                    "login",
-                                               parse_mode=ParseMode.MARKDOWN_V2)
-            self.utils.check_last_and_delete(update, context, message)
-            return botStates.NOT_LOGGED
-
-    def login(self, update, context):
-        message = update.message.reply_text(text="Send me bot credentials: <username>:<password>", reply_markup=None)
-        self.utils.check_last_and_delete(update, context, message)
-        update.message.delete()
-        return botStates.CREDENTIALS
-
-    # STATE=CREDENTIALS
-    def credentials(self, update: Update, context):
-        # User and chat id
         user = update.effective_user
-        chat_id = update.effective_chat.id
-        # Get config
-        credentials = self.config["credentials"]
-        users_conf = self.config["users"]
-        username = credentials["username"]
-        password = credentials["password"]
-        message = update.message.text
-        splitted = message.split(':')
-        update.message.delete()
-
-        # Credentials ok
-        if username == splitted[0] and password == splitted[1] and self.auth_chat_ids[chat_id]["banned"] is False:
-            self.auth_chat_ids[chat_id]["logged"] = True
-            self.utils.check_admin_logged()
-            message_sent = context.bot.send_message(chat_id, text="✅ Authentication succeeded")
-            self.utils.check_last_and_delete(update, context, message_sent)
-            logger.info("New user logged: {} chat_id: {}".format(user.username, chat_id))
-            self.utils.log_admin("New user logged: {} chat_id: {}".format(user.username, chat_id), update, context)
-            return botStates.LOGGED
-        else:  # Credentials not ok
-            self.auth_chat_ids[chat_id]["logged"] = False
-            if self.auth_chat_ids[chat_id]["tries"] >= users_conf["max_tries"]:
-                self.auth_chat_ids[chat_id]["banned"] = True
-            else:
-                self.auth_chat_ids[chat_id]["tries"] = self.auth_chat_ids[chat_id]["tries"] + 1
-            # User banned
-            if self.auth_chat_ids[chat_id]["banned"] is True:
-                message_sent = context.bot.send_message(chat_id, text="😢 You are banned. Bye Bye")
-                self.utils.check_last_and_delete(update, context, message_sent)
-                logger.warning("User: {} banned with chat_id: {}".format(username, chat_id))
-                self.utils.log_admin("User: {} banned with chat_id: {}".format(username, chat_id), update, context)
-                return ConversationHandler.END
-            else:
-                message_sent = context.bot.send_message(chat_id,
-                                                        text="❌ Authentication failed.\nSend me your credentials "
-                                                             "again: <username>:<password>")
-                self.utils.check_last_and_delete(update, context, message_sent)
-                logger.warning("New user: {} try authenticate with chat_id: {}".format(user.username, chat_id))
-            return botStates.CREDENTIALS
+        # Store value
+        text = "Welcome to *Home Control Bot* by *NiNi* [link](https://github.com/Giulianini/yi-hack-control-bot)\n"
+        if not self.utils.is_allowed(user.username):
+            text = text + "🚫 User not allowed 🚫"
+            message = context.bot.send_message(chat_id, text=text, parse_mode=ParseMode.MARKDOWN_V2)
+            self.utils.check_last_and_delete(update, context, message)
+            log_msg = "{} ({} {}) denied.".format(user.username, user.first_name, user.last_name)
+            logger.warning(log_msg)
+            self.utils.log_admin(log_msg, update, context)
+            return botStates.NOT_LOGGED
+        # Init user if not exists
+        self.init_user(chat_id, user)
+        log_msg = "{} ({} {}) active.".format(user.username, user.first_name, user.last_name)
+        logger.warning(log_msg)
+        self.utils.log_admin(log_msg, update, context)
+        message = context.bot.send_message(chat_id, text=text, parse_mode=ParseMode.MARKDOWN_V2)
+        self.utils.check_last_and_delete(update, context, message)
+        return botStates.LOGGED
 
     def show_logged_menu(self, update, context):
         self.utils.check_last_and_delete(update, context, None)
         update.message.delete()
-        keyboard = [[InlineKeyboardButton(text="Settings", callback_data=str(botEvents.SETTINGS_CLICK))],
-                    [InlineKeyboardButton(text="Logout", callback_data=str(botEvents.LOGOUT_CLICK))],
+        keyboard = [[InlineKeyboardButton(text="Analysis settings", callback_data=str(botEvents.SETTINGS_CLICK))],
                     [InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))]
                     ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -122,29 +71,17 @@ class Command(object):
         update.callback_query.edit_message_text(text="Select setting:", reply_markup=reply_markup)
         return botStates.SETTINGS
 
-    def logout(self, update: Update, context):
-        update.callback_query.answer()
-        update.callback_query.edit_message_text(text="*Logged out*", parse_mode=ParseMode.MARKDOWN_V2)
-        chat_id = update.effective_chat.id
-        self.auth_chat_ids[chat_id]["logged"] = False
-        self.utils.check_admin_logged()
-        self.utils.check_last_and_delete(update, context, update.effective_message)
-        # update.effective_message.delete()
-        return botStates.NOT_LOGGED  # return self.start()
-
     @staticmethod
     def exit(update: Update, _):
         update.callback_query.answer()
         update.effective_message.delete()
-        return botStates.END
+        return botStates.LOGGED
 
     def toggle(self, update: Update, _):
         status = self.config["analysis"]["status"]
         self.config["analysis"]["status"] = not status
         update.callback_query.answer()
-        # self.exit(update, context) and delete after
-        kb = [[InlineKeyboardButton(text="❌", callback_data=str(
-            botEvents.EXIT_CLICK))]]  # Exit if you want to exit Back to return to menu
+        kb = [[InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))]]  # Back to return to menu
         reply_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text="System switched Off" if status else "System switched On",
                                                 reply_markup=reply_markup)
@@ -153,7 +90,7 @@ class Command(object):
     @staticmethod
     def get_log(update: Update, _):
         update.callback_query.answer()
-        with open(botUtils.get_project_relative_path("app.log")) as f:
+        with open(utils.get_project_relative_path("app.log")) as f:
             keyboard = [[InlineKeyboardButton(text="⬅️", callback_data=str(botEvents.BACK_CLICK))]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             text = f.readlines()
@@ -238,7 +175,5 @@ class Command(object):
         if chat_id not in self.auth_chat_ids:
             self.auth_chat_ids[chat_id] = dict()
             self.auth_chat_ids[chat_id]["username"] = username
-            self.auth_chat_ids[chat_id]["tries"] = 1
-            self.auth_chat_ids[chat_id]["logged"] = False
-            self.auth_chat_ids[chat_id]["banned"] = False
+            self.auth_chat_ids[chat_id]["active"] = True
             self.auth_chat_ids[chat_id]["admin"] = self.utils.is_admin(username)
