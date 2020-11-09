@@ -1,4 +1,3 @@
 start - Start the bot and auth
-login - Log into system
 menu - View the menu
 snapshot - Get a snapshot from camera
