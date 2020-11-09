@@ -1,7 +1,10 @@
 import logging
 import os
 
-from lib import telegramBot, utils, videoAnalysis, mqttClient
+from bot import telegram_bot
+from mqtt import mqtt_client
+from utils import utils
+from video import video_analysis
 
 if __name__ == '__main__':
     # WORKING DIRECTORY
@@ -20,15 +23,15 @@ if __name__ == '__main__':
     authChatIds = dict()
 
     # BOT
-    telegram_bot = telegramBot.TelegramBot(config, authChatIds)
+    telegram_bot = telegram_bot.TelegramBot(config, authChatIds)
     # telegram_bot.startWebHook()
     telegram_bot.start_polling()
 
     # OPENCV
-    videoAnalysis = videoAnalysis.VideoAnalysis(config, authChatIds, telegram_bot)
+    videoAnalysis = video_analysis.VideoAnalysis(config, authChatIds, telegram_bot.utils)
     logger.info("Initialized Video-Analysis module")
 
     # MQTT
-    mqttClient = mqttClient.MqttClient(videoAnalysis, authChatIds, telegram_bot.get_bot(), config)
+    mqttClient = mqtt_client.MqttClient(videoAnalysis, authChatIds, telegram_bot.get_bot(), config)
     mqttClient.connect_and_start()
     logger.info("MQTT client started")

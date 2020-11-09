@@ -35,9 +35,30 @@ class BotUtils:
                 if v1["username"] == self.config["users"]["admin"]:
                     context.bot.send_message(k1, text=msg)
 
-    def check_admin_logged(self) -> bool:
+    def is_admin_logged(self) -> bool:
         for k1, v1 in self.auth_chat_ids.items():
-            return v1["active"] is True and v1["admin"] is True
+            if v1["active"] is True and v1["admin"] is True:
+                return True
+        return False
 
     def is_allowed(self, username) -> bool:
         return username in self.config["users"]
+
+    def init_user(self, chat_id, username):
+        if chat_id not in self.auth_chat_ids:
+            self.auth_chat_ids[chat_id] = dict()
+            self.auth_chat_ids[chat_id]["username"] = username
+            self.auth_chat_ids[chat_id]["active"] = True
+            self.auth_chat_ids[chat_id]["admin"] = self.is_admin(username)
+
+    def send_image_to_logged_users(self, image):
+        if self.is_admin_logged():
+            logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
+            for chatId, value in logged_users.items():
+                self.bot.send_photo(chatId, image)
+
+    def send_msg_to_logged_users(self, msg):
+        if self.is_admin_logged():
+            logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
+            for chatId, value in logged_users.items():
+                self.bot.send_message(chatId, text=msg)

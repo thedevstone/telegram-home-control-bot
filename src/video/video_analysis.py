@@ -5,16 +5,16 @@ from io import BytesIO
 import cv2
 from PIL import Image
 
-from lib import telegramBot
+from bot.utils.bot_utils import BotUtils
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
 class VideoAnalysis:
-    def __init__(self, config, auth_chat_ids, telegram_bot):
+    def __init__(self, config, auth_chat_ids, utils: BotUtils):
         self.config = config
         self.authChatIds = auth_chat_ids
-        self.telegram_bot: telegramBot = telegram_bot
+        self.utils = utils
         self.cam_to_rstp = dict()
         self.init_rtsp()
 
@@ -25,7 +25,7 @@ class VideoAnalysis:
     def analyze_rtsp(self, camera_id: str):
         rtsp = self.cam_to_rstp[camera_id]
         # Warn user
-        self.telegram_bot.send_msg_to_logged_users("😳Motion detected from {}❗".format(camera_id))
+        self.utils.send_msg_to_logged_users("😳Motion detected from {}❗".format(camera_id))
         # Init
         analysis = self.config["analysis"]
         fps = analysis["fps"]
@@ -54,4 +54,4 @@ class VideoAnalysis:
         im = Image.fromarray(image)
         im.save(temp_file, format="png")
         temp_file.seek(0)
-        self.telegram_bot.send_image_to_logged_users(temp_file)
+        self.utils.send_image_to_logged_users(temp_file)

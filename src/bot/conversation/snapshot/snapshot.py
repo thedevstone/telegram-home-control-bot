@@ -6,8 +6,8 @@ import requests
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Update
 
-from lib import botStates, botEvents
-from lib.bot_utils import BotUtils
+from bot.conversation.fsm import bot_states, bot_events
+from bot.utils.bot_utils import BotUtils
 
 logger = logging.getLogger(os.path.basename(__file__))
 
@@ -24,14 +24,14 @@ class SnapshotCommand(object):
         if not self.utils.is_admin(username_telegram):
             message_sent = update.message.reply_text(text="🔐 You are not an admin")
             self.utils.check_last_and_delete(update, context, message_sent)
-            return botStates.LOGGED
+            return bot_states.LOGGED
         kb = []
         for key, value in self.config["network"]["cameras"].items():
             kb.append([InlineKeyboardButton("{}".format(key), callback_data="{}".format(key))])
-        kb.append([InlineKeyboardButton(text="❌", callback_data=str(botEvents.EXIT_CLICK))])
+        kb.append([InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))])
         reply_markup = InlineKeyboardMarkup(kb)
         update.message.reply_text(text="Select camera:", reply_markup=reply_markup)
-        return botStates.LOGGED
+        return bot_states.LOGGED
 
     def snapshot_resp(self, update: Update, _):
         cam_name = update.callback_query.data
@@ -43,4 +43,4 @@ class SnapshotCommand(object):
         except requests.exceptions.Timeout:
             pass
         update.effective_message.delete()
-        return botStates.LOGGED
+        return bot_states.LOGGED
