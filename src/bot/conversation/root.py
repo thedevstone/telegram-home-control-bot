@@ -58,6 +58,7 @@ class RootCommand(object):
         keyboard = [[InlineKeyboardButton(text=mqtt_label, callback_data=str(bot_events.MQTT_SWITCH_CLICK))],
                     [InlineKeyboardButton(text="Snapshot", callback_data=str(bot_events.SNAPSHOT_CLICK))],
                     [InlineKeyboardButton(text="Video", callback_data=str(bot_events.VIDEO_CLICK))],
+                    [InlineKeyboardButton(text="Speak", callback_data=str(bot_events.SPEAK_CLICK))],
                     [InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))]
                     ]
         reply_markup = InlineKeyboardMarkup(keyboard)

@@ -1,12 +1,13 @@
 import logging
 import os
 
-from telegram.ext import CommandHandler, ConversationHandler, CallbackQueryHandler
+from telegram.ext import CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram.ext import Updater
 
-from bot.conversation import root
+from bot.conversation import root, speech
 from bot.conversation.fsm import bot_states, bot_events
 from bot.conversation.snapshot import snapshot
+from bot.conversation.speech import speech
 from bot.conversation.video import video
 from bot.utils import bot_utils
 from utils import utils
@@ -28,22 +29,28 @@ class TelegramBot:
         self.root = root.RootCommand(config, auth_chat_ids, self.utils)
         self.snapshot = snapshot.SnapshotCommand(config, auth_chat_ids, self.utils)
         self.video = video.VideoCommand(config, auth_chat_ids, self.utils)
+        self.speak = speech.SpeakCommand(config, auth_chat_ids, self.utils)
 
         # Level 1 only callback (no warning)
         self.menu_handler = ConversationHandler(
             entry_points=[
-                CallbackQueryHandler(self.snapshot.show_snapshot, pattern='^' + str(bot_events.SNAPSHOT_CLICK) + '$'),
-                CallbackQueryHandler(self.video.show_video, pattern='^' + str(bot_events.VIDEO_CLICK) + '$'),
                 CallbackQueryHandler(self.root.mqtt_switch, pattern='^' + str(bot_events.MQTT_SWITCH_CLICK) + '$'),
+                CallbackQueryHandler(self.snapshot.select_camera, pattern='^' + str(bot_events.SNAPSHOT_CLICK) + '$'),
+                CallbackQueryHandler(self.video.select_camera, pattern='^' + str(bot_events.VIDEO_CLICK) + '$'),
+                CallbackQueryHandler(self.speak.select_camera, pattern='^' + str(bot_events.SPEAK_CLICK) + '$'),
             ],
             states={
                 bot_states.SNAPSHOT: [CallbackQueryHandler(self.snapshot.snapshot_resp,
                                                            pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
                 bot_states.VIDEO: [CallbackQueryHandler(self.video.video_resp,
-                                                        pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")]
+                                                        pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
+                bot_states.SPEAK: [CallbackQueryHandler(self.speak.speak_resp,
+                                                        pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
+                bot_states.SPEAK_MESSAGE: [MessageHandler(Filters.all, self.speak.speak_message)]
+
             },
             fallbacks=[CallbackQueryHandler(self.root.exit, pattern='^' + str(bot_events.EXIT_CLICK) + '$')],
-            per_message=True,
+            per_message=False,
             map_to_parent={
                 bot_states.END: bot_states.LOGGED,
                 bot_states.LOGGED: bot_states.LOGGED,

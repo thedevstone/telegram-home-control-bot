@@ -20,7 +20,7 @@ class VideoCommand(object):
         self.auth_chat_ids = auth_chat_ids
         self.utils = conversation_utils
 
-    def show_video(self, update: Update, _):
+    def select_camera(self, update: Update, _):
         kb = []
         for camera in self.auth_chat_ids[update.effective_chat.id]["cameras"]:
             kb.append([InlineKeyboardButton("{}".format(camera), callback_data="{}".format(camera))])
