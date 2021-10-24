@@ -20,3 +20,7 @@ config.yaml
 
 # Idea
 .idea
+
+# Audio files
+voice.ogg
+voice.wav
