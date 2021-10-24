@@ -73,7 +73,7 @@ class TelegramBot:
 
     def start_web_hook(self):
         # START WEBHOOK
-        network = self.config["network"]["telegram"]
+        network = self.config["telegram"]
         key = utils.get_project_relative_path(network["key"])
         cert = utils.get_project_relative_path(network["cert"])
         utils.start_web_hook(self.updater, self.config["token"], network["ip"], network["port"], key, cert)

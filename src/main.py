@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
     # BOT
     telegram_bot = telegram_bot.TelegramBot(config, authChatIds)
-    # telegram_bot.startWebHook()
-    telegram_bot.start_polling()
+    telegram_bot.start_web_hook()
+    # telegram_bot.start_polling()
 
     # MQTT
     topic_handler = YiMQTTTopicHandler(bot_utils=telegram_bot.utils)
