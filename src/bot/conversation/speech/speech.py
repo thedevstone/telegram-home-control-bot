@@ -42,7 +42,7 @@ class SpeakCommand(object):
         cam_name = context.user_data["selected_camera"]
         ip = self.config["cameras"][cam_name]["ip"]
         if update.message.text:
-            message = update.message.text.encode("utf-8")
+            message = update.message.text.lower().encode("utf-8")
             if message == b"exit":
                 update.effective_message.delete()
                 return bot_states.LOGGED

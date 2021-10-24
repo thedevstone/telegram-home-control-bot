@@ -36,7 +36,7 @@ class VideoCommand(object):
         try:
             response = requests.get("http://{}:80/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4".format(ip),
                                     timeout=20)
-            update.effective_message.reply_video(video=BytesIO(response.content), caption=cam_name + " video")
+            update.effective_message.reply_video(video=BytesIO(response.content), caption=cam_name + ": video")
         except requests.exceptions.Timeout:
             logger.error("Timeout")
             message = update.effective_message.reply_text(text="Timeout")

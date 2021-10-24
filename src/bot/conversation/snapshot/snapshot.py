@@ -35,7 +35,7 @@ class SnapshotCommand(object):
         update.callback_query.answer()
         try:
             response = requests.get("http://{}/cgi-bin/snapshot.sh".format(ip), timeout=10)
-            update.effective_message.reply_photo(BytesIO(response.content), caption=cam_name + " shapshot")
+            update.effective_message.reply_photo(BytesIO(response.content), caption=cam_name + ": shapshot")
         except requests.exceptions.Timeout:
             logger.error("Timeout")
             message = update.effective_message.reply_text(text="Timeout")
