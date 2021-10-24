@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  yi-home-control-bot:
+    build: .
+    image: yi_home_control_bot_image
+    container_name: yi_home_control_bot_cont
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
