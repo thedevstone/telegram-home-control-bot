@@ -8,6 +8,7 @@ from bot.conversation import root
 from bot.conversation.fsm import bot_states, bot_events
 from bot.conversation.settings import settings
 from bot.conversation.snapshot import snapshot
+from bot.conversation.video import video
 from bot.utils import bot_utils
 from utils import utils
 
@@ -28,15 +29,19 @@ class TelegramBot:
         self.root = root.RootCommand(config, auth_chat_ids, self.utils)
         self.settings = settings.SettingsCommand(config, auth_chat_ids, self.utils)
         self.snapshot = snapshot.SnapshotCommand(config, auth_chat_ids, self.utils)
+        self.video = video.VideoCommand(config, auth_chat_ids, self.utils)
 
         # Level 1 only callback (no warning)
         self.menu_handler = ConversationHandler(
             entry_points=[
                 CallbackQueryHandler(self.snapshot.show_snapshot, pattern='^' + str(bot_events.SNAPSHOT_CLICK) + '$'),
+                CallbackQueryHandler(self.video.show_video, pattern='^' + str(bot_events.VIDEO_CLICK) + '$'),
             ],
             states={
                 bot_states.SNAPSHOT: [CallbackQueryHandler(self.snapshot.snapshot_resp,
-                                                           pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")]
+                                                           pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
+                bot_states.VIDEO: [CallbackQueryHandler(self.video.video_resp,
+                                                        pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")]
             },
             fallbacks=[CallbackQueryHandler(self.root.exit, pattern='^' + str(bot_events.EXIT_CLICK) + '$')],
             per_message=True,

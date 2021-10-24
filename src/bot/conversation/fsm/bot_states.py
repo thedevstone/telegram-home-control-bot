@@ -1,3 +1,3 @@
 # States
 CREDENTIALS, LOGGED, NOT_LOGGED, END = range(4)
-SNAPSHOT = range(4, 5)
+SNAPSHOT, VIDEO = range(4, 6)
