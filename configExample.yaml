@@ -19,7 +19,7 @@ cameras:
       - "yicam-2/status"
       - "yicam-1/motion_detection_image"
     ip: 192.168.1.2
-token: 1373897173:AAEeSIb1Fym5dIzeDMppzKb69drUOKzjqUI
+token: code
 users:
   TelegramUsername:
     cameras: #ACL
