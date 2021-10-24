@@ -41,6 +41,10 @@ class RootCommand(object):
         return bot_states.LOGGED
 
     def mqtt_switch(self, update: Update, context):
+        if not self.utils.is_admin(update.effective_user.username):
+            message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
+            self.utils.check_last_and_delete(update, context, message_sent)
+            return bot_states.LOGGED
         will_be_enabled = not self.config["mqtt"]["enable"]
         self.config["mqtt"]["enable"] = will_be_enabled
         message = update.callback_query.edit_message_text(

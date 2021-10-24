@@ -30,15 +30,15 @@ class YiMQTTTopicHandler:
 
     def status_message_handler(self, camera: str, message: mqtt.MQTTMessage):
         payload = self.get_text_payload(message)
-        self.bot_utils.send_msg_to_logged_users(message="{} from {}".format(payload, camera))
+        self.bot_utils.send_msg_to_logged_auth_users(camera=camera, message="{} from {}".format(payload, camera))
 
     def motion_message_handler(self, camera: str, message: mqtt.MQTTMessage):
         payload = self.get_text_payload(message)
-        self.bot_utils.send_msg_to_logged_users(message="{} from {}".format(payload, camera))
+        self.bot_utils.send_msg_to_logged_auth_users(camera=camera, message="{} from {}".format(payload, camera))
 
     def motion_detection_image_handler(self, camera: str, message: mqtt.MQTTMessage):
         image = BytesIO(message.payload)
-        self.bot_utils.send_image_to_logged_users(image=image, caption="motion: {}".format(camera))
+        self.bot_utils.send_image_to_logged_auth_users(camera=camera, image=image, caption="motion: {}".format(camera))
 
     @staticmethod
     def get_text_payload(message: mqtt.MQTTMessage) -> str:

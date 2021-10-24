@@ -20,15 +20,10 @@ class SnapshotCommand(object):
         self.auth_chat_ids = auth_chat_ids
         self.utils = conversation_utils
 
-    def show_snapshot(self, update: Update, context):
-        username_telegram = update.effective_user.username
-        if not self.utils.is_admin(username_telegram):
-            message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
-            self.utils.check_last_and_delete(update, context, message_sent)
-            return bot_states.LOGGED
+    def show_snapshot(self, update: Update, _):
         kb = []
-        for key, value in self.config["network"]["cameras"].items():
-            kb.append([InlineKeyboardButton("{}".format(key), callback_data="{}".format(key))])
+        for camera in self.auth_chat_ids[update.effective_chat.id]["cameras"]:
+            kb.append([InlineKeyboardButton("{}".format(camera), callback_data="{}".format(camera))])
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))])
         reply_markup = InlineKeyboardMarkup(kb)
         update.callback_query.edit_message_text(text="Select camera:", reply_markup=reply_markup)
@@ -36,7 +31,7 @@ class SnapshotCommand(object):
 
     def snapshot_resp(self, update: Update, context):
         cam_name = update.callback_query.data
-        ip = self.config["network"]["cameras"][cam_name]["ip"]
+        ip = self.config["cameras"][cam_name]["ip"]
         update.callback_query.answer()
         try:
             response = requests.get("http://{}/cgi-bin/snapshot.sh".format(ip), timeout=10)

@@ -1,3 +1,3 @@
 # States
 CREDENTIALS, LOGGED, NOT_LOGGED, END = range(4)
-SNAPSHOT, VIDEO = range(4, 6)
+SNAPSHOT, VIDEO, MQTT_SWITCH = range(4, 7)

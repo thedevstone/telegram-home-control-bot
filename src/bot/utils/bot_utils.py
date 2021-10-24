@@ -42,7 +42,8 @@ class BotUtils:
         return False
 
     def is_allowed(self, username) -> bool:
-        return username in self.config["users"]
+        for user, _ in self.config["users"].items():
+            return user == username
 
     def init_user(self, chat_id, username):
         if chat_id not in self.auth_chat_ids:
@@ -50,15 +51,22 @@ class BotUtils:
             self.auth_chat_ids[chat_id]["username"] = username
             self.auth_chat_ids[chat_id]["active"] = True
             self.auth_chat_ids[chat_id]["admin"] = self.is_admin(username)
+            self.auth_chat_ids[chat_id]["cameras"] = self.config["users"][username]["cameras"]
 
-    def send_image_to_logged_users(self, image, caption: str, notification: bool = True):
+    def get_logged_users(self):
+        return dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
+
+    def get_logged_and_auth_camera_users(self, camera: str):
+        return dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True and camera in v["cameras"])
+
+    def send_image_to_logged_auth_users(self, camera: str, image, caption: str, notification: bool = True):
         if self.is_admin_logged():
-            logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
+            logged_users = self.get_logged_and_auth_camera_users(camera)
             for chatId, value in logged_users.items():
                 self.bot.send_photo(chat_id=chatId, photo=image, caption=caption, disable_notification=notification)
 
-    def send_msg_to_logged_users(self, message: str, notification: bool = True):
+    def send_msg_to_logged_auth_users(self, camera: str, message: str, notification: bool = True):
         if self.is_admin_logged():
-            logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
+            logged_users = self.get_logged_and_auth_camera_users(camera)
             for chatId, value in logged_users.items():
                 self.bot.send_message(chatId, text=message, disable_notification=notification)
