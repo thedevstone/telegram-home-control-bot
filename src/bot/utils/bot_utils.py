@@ -51,14 +51,14 @@ class BotUtils:
             self.auth_chat_ids[chat_id]["active"] = True
             self.auth_chat_ids[chat_id]["admin"] = self.is_admin(username)
 
-    def send_image_to_logged_users(self, image):
+    def send_image_to_logged_users(self, image, caption: str, notification: bool = True):
         if self.is_admin_logged():
             logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
             for chatId, value in logged_users.items():
-                self.bot.send_photo(chatId, image)
+                self.bot.send_photo(chat_id=chatId, photo=image, caption=caption, disable_notification=notification)
 
-    def send_msg_to_logged_users(self, msg):
+    def send_msg_to_logged_users(self, message: str, notification: bool = True):
         if self.is_admin_logged():
             logged_users = dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
             for chatId, value in logged_users.items():
-                self.bot.send_message(chatId, text=msg)
+                self.bot.send_message(chatId, text=message, disable_notification=notification)

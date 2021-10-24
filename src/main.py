@@ -3,8 +3,8 @@ import os
 
 from bot import telegram_bot
 from mqtt import mqtt_client
+from mqtt.yi_mqtt_topic_handler import YiMQTTTopicHandler
 from utils import utils
-from video import video_analysis
 
 if __name__ == '__main__':
     # WORKING DIRECTORY
@@ -27,11 +27,8 @@ if __name__ == '__main__':
     # telegram_bot.startWebHook()
     telegram_bot.start_polling()
 
-    # OPENCV
-    videoAnalysis = video_analysis.VideoAnalysis(config, authChatIds, telegram_bot.utils)
-    logger.info("Initialized Video-Analysis module")
-
     # MQTT
-    mqttClient = mqtt_client.MqttClient(videoAnalysis, authChatIds, telegram_bot.get_bot(), config)
+    topic_handler = YiMQTTTopicHandler(bot_utils=telegram_bot.utils)
+    mqttClient = mqtt_client.MqttClient(authChatIds, telegram_bot.get_bot(), config, topic_handler)
     mqttClient.connect_and_start()
     logger.info("MQTT client started")

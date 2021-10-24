@@ -1,18 +1,21 @@
 import logging
 import os
+from random import Random
 
 import paho.mqtt.client as mqtt
+
+from mqtt.yi_mqtt_topic_handler import YiMQTTTopicHandler
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
 class MqttClient:
-    def __init__(self, video_analysis, auth_chat_ids, bot, config):
-        self.videoAnalysis = video_analysis
+    def __init__(self, auth_chat_ids, bot, config, topic_handler: YiMQTTTopicHandler):
         self.authChatIds = auth_chat_ids
         self.bot = bot
         self.config = config
-        self.client = mqtt.Client(client_id="Bot", clean_session=True)
+        self.client = mqtt.Client(client_id="Bot-" + str(Random().randint(0, 1000)), clean_session=True)
+        self.topic_handler = topic_handler
         self.init_mqtt_client()
 
     def init_mqtt_client(self):
@@ -24,15 +27,12 @@ class MqttClient:
 
     def on_connect(self, client, userdata, flags, rc):
         logger.info("MQTT Connected with result code " + str(rc))
-        for key, value in self.config["network"]["cameras"].items():
-            self.client.subscribe("{}".format(value["topic"]), qos=1)
+        for _, camera in self.config["network"]["cameras"].items():
+            for topic in camera["topics"]:
+                self.client.subscribe("{}".format(topic), qos=1)
 
     def on_message(self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
-        message = str(msg.payload.decode("utf-8"))
-        camera_id = str(msg.topic).split('/')[0]
-        status = self.config["analysis"]["status"]
-        if message == "motion_start" and status:
-            self.motion_start(camera_id)
+        self.topic_handler.handle(msg)
 
     def connect_and_start(self):
         server = self.config["network"]["mqtt"]["server"]
@@ -42,6 +42,3 @@ class MqttClient:
     def disconnect_and_stop(self):
         self.client.loop_stop()
         self.client.disconnect()
-
-    def motion_start(self, camera_id):
-        self.videoAnalysis.analyze_rtsp(camera_id)
