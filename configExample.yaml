@@ -1,34 +1,28 @@
-#Rename to config.yaml
-network:
-  telegram:
-    ip: 222.222.222.222
-    port: 88 # Forward port on router
-    key: "private.key"
-    cert: "cert.pem"
-  mqtt:
-    server: 192.168.1.100
-    username: "mqtt_user"
-    password: "mqtt_password"
-  cameras:
-    yicam-1:
-      topic: "yicam-1/motion_detection"
-      ip: 192.168.1.192
-      rtsp: "rtsp://192.168.1.192/ch0_0.h264"
-    yicam-2:
-      topic: "yicam-2/motion_detection"
-      ip: 192.168.1.193
-      rtsp: "rtsp://192.168.1.193/ch0_0.h264"
-credentials:
-  password: pass
-  username: username
-analysis:
-  status: False
-  fps: 20 # Camera fps
-  seconds: 60 # How many seconds analyze
-  faces: 3 # How many faces to send, configurable at runtime
-  anal_fps: 5 # How many frame analyze. 0.2 means analyze 1 frame of 5. DON'T INCREASE THIS NUMBER
-token: 111111111:aaaaaaaaaaaaaaa-1111111111 # Telegram Token
-watchDirectory: "." # Files directory (mp4)
+telegram:
+  ip: 222.222.222.222
+  port: 88
+  key: "private.key"
+  cert: "cert.pem"
+mqtt:
+  server: 192.168.1.100
+  username: "username"
+  password: "password"
+  enable: true
+cameras:
+  yicam-1:
+    topics:
+      - "yicam-1/status"
+      - "yicam-1/motion_detection_image"
+    ip: 192.168.1.1
+  yicam-2:
+    topics:
+      - "yicam-2/status"
+      - "yicam-1/motion_detection_image"
+    ip: 192.168.1.2
+token: 1373897173:AAEeSIb1Fym5dIzeDMppzKb69drUOKzjqUI
 users:
-  max_tries: 3
-  admin: john10 # Telegram username
+  TelegramUsername:
+    cameras: #ACL
+      - yicam-1
+      - yicam-2
+admin: TelegramUsername
