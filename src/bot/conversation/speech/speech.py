@@ -49,7 +49,8 @@ class SpeakCommand(object):
             try:
                 response: Response = requests.post("http://{}:80/cgi-bin/speak.sh?lang=it-IT".format(ip), timeout=20,
                                                    data=message)
-                message = update.effective_message.reply_text(text="Success" if response.json()["error"] else "Error")
+                message = update.effective_message.reply_text(
+                    text="Error " + response.json()["description"] if response.json()["error"] else "Success")
                 self.utils.check_last_and_delete(update, context, message)
             except requests.exceptions.Timeout:
                 logger.error("Timeout")
