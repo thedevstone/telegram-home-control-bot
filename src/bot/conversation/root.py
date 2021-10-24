@@ -43,7 +43,7 @@ class RootCommand(object):
     def show_logged_menu(self, update, context):
         self.utils.check_last_and_delete(update, context, None)
         update.message.delete()
-        keyboard = [[InlineKeyboardButton(text="Analysis settings", callback_data=str(bot_events.SETTINGS_CLICK))],
+        keyboard = [[InlineKeyboardButton(text="Snapshot", callback_data=str(bot_events.SNAPSHOT_CLICK))],
                     [InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))]
                     ]
         reply_markup = InlineKeyboardMarkup(keyboard)

@@ -22,7 +22,7 @@ class SnapshotCommand(object):
     def show_snapshot(self, update: Update, context):
         username_telegram = update.effective_user.username
         if not self.utils.is_admin(username_telegram):
-            message_sent = update.message.reply_text(text="🔐 You are not an admin")
+            message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
             self.utils.check_last_and_delete(update, context, message_sent)
             return bot_states.LOGGED
         kb = []
@@ -30,8 +30,8 @@ class SnapshotCommand(object):
             kb.append([InlineKeyboardButton("{}".format(key), callback_data="{}".format(key))])
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))])
         reply_markup = InlineKeyboardMarkup(kb)
-        update.message.reply_text(text="Select camera:", reply_markup=reply_markup)
-        return bot_states.LOGGED
+        update.callback_query.edit_message_text(text="Select camera:", reply_markup=reply_markup)
+        return bot_states.SNAPSHOT
 
     def snapshot_resp(self, update: Update, _):
         cam_name = update.callback_query.data
