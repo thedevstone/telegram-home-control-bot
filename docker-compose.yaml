@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 
 services:
   yi-home-control-bot:
@@ -9,6 +9,4 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 5s
         max_attempts: 3
-        window: 120s
