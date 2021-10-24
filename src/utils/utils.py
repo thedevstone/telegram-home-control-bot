@@ -45,7 +45,7 @@ def check_configuration(config):
     def check_file_exists(path):
         return os.path.isfile(get_project_relative_path(path))
 
-    telegram_network = config["network"]["telegram"]
+    telegram_network = config["telegram"]
     telegram_network_path = telegram_network["key"]
     cert_path = telegram_network["cert"]
     return check_file_exists(telegram_network_path) and check_file_exists(cert_path)

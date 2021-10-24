@@ -16,9 +16,7 @@ class YiMQTTTopicHandler:
         self.init_handlers()
 
     def init_handlers(self):
-        # self.topic_handlers["motion_detection"] = self.motion_message_handler
-        # self.topic_handlers["status"] = self.status_message_handler
-        # self.topic_handlers["sound_detection"] = self.motion_message_handler
+        self.topic_handlers["status"] = self.status_message_handler
         self.topic_handlers["motion_detection_image"] = self.motion_detection_image_handler
 
     def handle(self, message: mqtt.MQTTMessage):

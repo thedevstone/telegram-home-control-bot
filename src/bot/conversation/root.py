@@ -40,10 +40,19 @@ class RootCommand(object):
         self.utils.check_last_and_delete(update, context, message)
         return bot_states.LOGGED
 
+    def mqtt_switch(self, update: Update, context):
+        will_be_enabled = not self.config["mqtt"]["enable"]
+        self.config["mqtt"]["enable"] = will_be_enabled
+        message = update.callback_query.edit_message_text(
+            text="MQTT is" + (" enabled" if will_be_enabled else " disabled"))
+        self.utils.check_last_and_delete(update, context, message)
+
     def show_logged_menu(self, update, context):
         self.utils.check_last_and_delete(update, context, None)
         update.message.delete()
-        keyboard = [[InlineKeyboardButton(text="Snapshot", callback_data=str(bot_events.SNAPSHOT_CLICK))],
+        mqtt_label = ("Enable" if not self.config["mqtt"]["enable"] else "Disable") + " MQTT"
+        keyboard = [[InlineKeyboardButton(text=mqtt_label, callback_data=str(bot_events.MQTT_SWITCH_CLICK))],
+                    [InlineKeyboardButton(text="Snapshot", callback_data=str(bot_events.SNAPSHOT_CLICK))],
                     [InlineKeyboardButton(text="Video", callback_data=str(bot_events.VIDEO_CLICK))],
                     [InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))]
                     ]

@@ -19,23 +19,24 @@ class MqttClient:
         self.init_mqtt_client()
 
     def init_mqtt_client(self):
-        username = self.config["network"]["mqtt"]["username"]
-        password = self.config["network"]["mqtt"]["password"]
+        username = self.config["mqtt"]["username"]
+        password = self.config["mqtt"]["password"]
         self.client.username_pw_set(username=username, password=password)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
     def on_connect(self, client, userdata, flags, rc):
         logger.info("MQTT Connected with result code " + str(rc))
-        for _, camera in self.config["network"]["cameras"].items():
+        for _, camera in self.config["cameras"].items():
             for topic in camera["topics"]:
                 self.client.subscribe("{}".format(topic), qos=1)
 
     def on_message(self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
-        self.topic_handler.handle(msg)
+        if self.config["mqtt"]["enable"]:
+            self.topic_handler.handle(msg)
 
     def connect_and_start(self):
-        server = self.config["network"]["mqtt"]["server"]
+        server = self.config["mqtt"]["server"]
         self.client.connect(server, 1883, 60)
         self.client.loop_start()
 
