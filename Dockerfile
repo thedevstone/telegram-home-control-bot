@@ -6,9 +6,8 @@ USER user
 WORKDIR /home/user/app
 
 COPY --chown=user:user requirements.txt requirements.txt
-RUN pip install --upgrade pip
+RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
-ENV PATH="/home/user/.local/bin:${PATH}"
 COPY --chown=user:user . .
 
 ENTRYPOINT ["python"]
