@@ -4,6 +4,7 @@ FROM python:latest
 RUN useradd -rm -d /home/user user
 USER user
 WORKDIR /home/user/app
+ENV PATH="/home/user/.local/bin:${PATH}"
 
 COPY --chown=user:user requirements.txt requirements.txt
 RUN python -m pip install --upgrade pip
