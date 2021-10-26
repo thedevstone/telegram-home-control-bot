@@ -47,7 +47,7 @@ Install:
 - Docker
 - Docker compose
 
-### Broker MQTT
+### Broker MQTT (Optional)
 
 - Needed for motion detection images and messages
 
