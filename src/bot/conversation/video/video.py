@@ -32,7 +32,8 @@ class VideoCommand(object):
     def video_resp(self, update: Update, context):
         cam_name = update.callback_query.data
         ip = self.config["cameras"][cam_name]["ip-port"]
-        video_url = self.config["cameras"][cam_name]["video"]
+        camera_type = self.config["cameras"][cam_name]["type"]
+        video_url = self.config["camera-types"][camera_type]["web-services"]["video"]
         update.callback_query.answer()
         try:
             response = requests.get("http://{}{}".format(ip, video_url), timeout=20)

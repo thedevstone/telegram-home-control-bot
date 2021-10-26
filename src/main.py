@@ -15,7 +15,10 @@ if __name__ == '__main__':
     # INIT
     utils.init_logger()
     logger = logging.getLogger(os.path.basename(__file__))
-    config = utils.load_yaml("../config.yaml")
+    user_config = utils.load_yaml("../config.yaml")
+    camera_types = utils.load_yaml("../camera-types.yaml")
+    config = utils.merge_yaml_configs(user_config, camera_types)
+
     utils.check_configuration(config)
     logger.info("Configuration loaded")
 

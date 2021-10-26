@@ -32,7 +32,8 @@ class SnapshotCommand(object):
     def snapshot_resp(self, update: Update, context):
         cam_name = update.callback_query.data
         ip = self.config["cameras"][cam_name]["ip-port"]
-        snapshot_url = self.config["cameras"][cam_name]["snapshot"]
+        camera_type = self.config["cameras"][cam_name]["type"]
+        snapshot_url = self.config["camera-types"][camera_type]["web-services"]["snapshot"]
         update.callback_query.answer()
         try:
             response = requests.get("http://{}{}".format(ip, snapshot_url), timeout=10)

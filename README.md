@@ -61,7 +61,7 @@ Install:
 
 ### Preparing configuration
 
-- Create a **config.yaml**. See `configExample.yaml`
+- Create a **config.yaml**. See `config-example.yaml`
 - Network bot config:
     - **WebHook**:
         - uncomment `telegram_bot.start_web_hook()` in `main.py`

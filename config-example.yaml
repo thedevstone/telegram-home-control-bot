@@ -10,21 +10,13 @@ broker-mqtt:
   enable: true
 cameras:
   yicam-1:
-    snapshot: "/cgi-bin/snapshot.sh"
-    video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
-    speak: "/cgi-bin/speak.sh?lang=it-IT"
-    speaker: "/cgi-bin/speaker.sh"
-    type: "yi-hack-allwinner"
+    type: yi-hack-allwinner
     topics:
       - "yicam-1/status"
       - "yicam-1/motion_detection_image"
     ip-port: 192.168.1.192:80
   yicam-2:
-    snapshot: "/cgi-bin/snapshot.sh"
-    video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
-    speak: "/cgi-bin/speak.sh?lang=it-IT"
-    speaker: "/cgi-bin/speaker.sh"
-    type: "yi-hack-allwinner"
+    type: yi-hack-allwinner
     topics:
       - "yicam-2/status"
       - "yicam-1/motion_detection_image"

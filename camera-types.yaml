@@ -1,0 +1,7 @@
+camera-types:
+  yi-hack-allwinner:
+    web-services:
+      snapshot: "/cgi-bin/snapshot.sh"
+      video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
+      speak: "/cgi-bin/speak.sh?lang=it-IT"
+      speaker: "/cgi-bin/speaker.sh"

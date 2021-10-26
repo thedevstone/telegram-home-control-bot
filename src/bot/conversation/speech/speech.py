@@ -41,8 +41,9 @@ class SpeakCommand(object):
     def speak_message(self, update: Update, context: CallbackContext):
         cam_name = context.user_data["selected_camera"]
         ip = self.config["cameras"][cam_name]["ip-port"]
-        speak_url = self.config["cameras"][cam_name]["speak"]
-        speaker_url = self.config["cameras"][cam_name]["speaker"]
+        camera_type = self.config["cameras"][cam_name]["type"]
+        speak_url = self.config["camera-types"][camera_type]["web-services"]["speak"]
+        speaker_url = self.config["camera-types"][camera_type]["web-services"]["speaker"]
         if update.message.text:
             message = update.message.text.lower().encode("utf-8")
             if message == b"exit":
