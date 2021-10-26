@@ -92,7 +92,7 @@ docker-compose up -d --build
 4. Run main.py
 
 ```shell
-  (venv) python yiHomeControlBot.py
+  (venv) python main.py
 ```
 
 ## Performance

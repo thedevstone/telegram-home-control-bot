@@ -1,10 +1,10 @@
 version: "3.9"
 
 services:
-  yi-home-control-bot:
+  yi-hack-control-bot:
     build: .
-    image: yi_home_control_bot_image
-    container_name: yi_home_control_bot_cont
+    image: yi_hack_telegram_bot_image
+    container_name: yi_hack_telegram_bot_cont
     network_mode: host
     restart: always
     deploy:
