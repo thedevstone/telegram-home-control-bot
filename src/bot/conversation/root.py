@@ -45,8 +45,8 @@ class RootCommand(object):
             message_sent = update.callback_query.edit_message_text(text="🔐 You are not an admin")
             self.utils.check_last_and_delete(update, context, message_sent)
             return bot_states.LOGGED
-        will_be_enabled = not self.config["mqtt"]["enable"]
-        self.config["mqtt"]["enable"] = will_be_enabled
+        will_be_enabled = not self.config["broker-mqtt"]["enable"]
+        self.config["broker-mqtt"]["enable"] = will_be_enabled
         message = update.callback_query.edit_message_text(
             text="MQTT is" + (" enabled" if will_be_enabled else " disabled"))
         self.utils.check_last_and_delete(update, context, message)
@@ -54,7 +54,7 @@ class RootCommand(object):
     def show_logged_menu(self, update, context):
         self.utils.check_last_and_delete(update, context, None)
         update.message.delete()
-        mqtt_label = ("Enable" if not self.config["mqtt"]["enable"] else "Disable") + " MQTT"
+        mqtt_label = ("Enable" if not self.config["broker-mqtt"]["enable"] else "Disable") + " MQTT"
         keyboard = [[InlineKeyboardButton(text=mqtt_label, callback_data=str(bot_events.MQTT_SWITCH_CLICK))],
                     [InlineKeyboardButton(text="Snapshot", callback_data=str(bot_events.SNAPSHOT_CLICK))],
                     [InlineKeyboardButton(text="Video", callback_data=str(bot_events.VIDEO_CLICK))],

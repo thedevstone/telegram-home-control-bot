@@ -31,11 +31,11 @@ class VideoCommand(object):
 
     def video_resp(self, update: Update, context):
         cam_name = update.callback_query.data
-        ip = self.config["cameras"][cam_name]["ip"]
+        ip = self.config["cameras"][cam_name]["ip-port"]
+        video_url = self.config["cameras"][cam_name]["video"]
         update.callback_query.answer()
         try:
-            response = requests.get("http://{}:80/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4".format(ip),
-                                    timeout=20)
+            response = requests.get("http://{}{}".format(ip, video_url), timeout=20)
             update.effective_message.reply_video(video=BytesIO(response.content), caption=cam_name + ": video")
         except requests.exceptions.Timeout:
             logger.error("Timeout")

@@ -1,28 +1,36 @@
 telegram:
-  ip: 222.222.222.222
+  ip: 2.2.2.2
   port: 88
   key: "private.key"
   cert: "cert.pem"
-mqtt:
-  server: 192.168.1.100
-  username: "username"
+broker-mqtt:
+  ip: 192.168.1.1
+  username: "mqtt-user"
   password: "password"
   enable: true
 cameras:
   yicam-1:
+    snapshot: "/cgi-bin/snapshot.sh"
+    video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
+    speak: "/cgi-bin/speak.sh?lang=it-IT"
+    speaker: "/cgi-bin/speaker.sh"
     topics:
       - "yicam-1/status"
       - "yicam-1/motion_detection_image"
-    ip: 192.168.1.1
+    ip-port: 192.168.1.192:80
   yicam-2:
+    snapshot: "/cgi-bin/snapshot.sh"
+    video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
+    speak: "/cgi-bin/speak.sh?lang=it-IT"
+    speaker: "/cgi-bin/speaker.sh"
     topics:
       - "yicam-2/status"
       - "yicam-1/motion_detection_image"
-    ip: 192.168.1.2
-token: code
+    ip-port: 192.168.1.193:80
+token: 1234523:2342525234523424234234324
 users:
-  TelegramUsername:
-    cameras: #ACL
+  Username:
+    cameras:
       - yicam-1
       - yicam-2
-admin: TelegramUsername
+admin: Username

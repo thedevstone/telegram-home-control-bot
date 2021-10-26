@@ -19,8 +19,8 @@ class MqttClient:
         self.init_mqtt_client()
 
     def init_mqtt_client(self):
-        username = self.config["mqtt"]["username"]
-        password = self.config["mqtt"]["password"]
+        username = self.config["broker-mqtt"]["username"]
+        password = self.config["broker-mqtt"]["password"]
         self.client.username_pw_set(username=username, password=password)
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
@@ -36,9 +36,13 @@ class MqttClient:
             self.topic_handler.handle(msg)
 
     def connect_and_start(self):
-        server = self.config["mqtt"]["server"]
-        self.client.connect(server, 1883, 60)
-        self.client.loop_start()
+        server: str = self.config["broker-mqtt"]["ip"]
+        if server:
+            self.client.connect(server, 1883, 60)
+            self.client.loop_start()
+            logger.info("MQTT client started")
+        else:
+            logger.warning("MQTT client not defined")
 
     def disconnect_and_stop(self):
         self.client.loop_stop()
