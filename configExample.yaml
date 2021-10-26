@@ -14,6 +14,7 @@ cameras:
     video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
     speak: "/cgi-bin/speak.sh?lang=it-IT"
     speaker: "/cgi-bin/speaker.sh"
+    type: "yi-hack-allwinner"
     topics:
       - "yicam-1/status"
       - "yicam-1/motion_detection_image"
@@ -23,6 +24,7 @@ cameras:
     video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
     speak: "/cgi-bin/speak.sh?lang=it-IT"
     speaker: "/cgi-bin/speaker.sh"
+    type: "yi-hack-allwinner"
     topics:
       - "yicam-2/status"
       - "yicam-1/motion_detection_image"
