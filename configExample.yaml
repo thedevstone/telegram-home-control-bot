@@ -4,7 +4,7 @@ telegram:
   key: "private.key"
   cert: "cert.pem"
 broker-mqtt:
-  ip: 192.168.1.1
+  ip: 192.168.1.1 #Leave empty if not used
   username: "mqtt-user"
   password: "password"
   enable: true
