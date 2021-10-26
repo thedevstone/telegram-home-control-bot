@@ -3,10 +3,10 @@
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Raspberry Installation](#raspberry-installation)
 - [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Bot creation](#bot-creation)
+- [Installation](#installation)
 - [Performance](#performance)
 - [Supported cameras](#supported-cameras)
 - [Donation](#donation)
@@ -97,7 +97,7 @@ docker-compose up -d --build
 
 ## Performance
 
-Good performance if video present faces. If video does not have faces it has to be analysed entirely
+Bot performance depends on camera availability and MQTT delay.
 
 ## Supported-Cameras
 

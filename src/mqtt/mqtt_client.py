@@ -27,13 +27,25 @@ class MqttClient:
 
     def on_connect(self, client, userdata, flags, rc):
         logger.info("MQTT Connected with result code " + str(rc))
-        for _, camera in self.config["cameras"].items():
-            for topic in camera["topics"]:
-                self.client.subscribe("{}".format(topic), qos=1)
+        for camera_name, camera_value in self.config["cameras"].items():
+            camera_type_config = self.config["camera-types"][camera_value["type"]]
+            for topic_key, topic in camera_type_config["mqtt"]["topic-suffix"].items():
+                self.client.subscribe("{}/{}".format(camera_name, topic), qos=1)
+                logger.info("Subscribed to {} -> {}/{}".format(topic_key, camera_name, topic))
 
     def on_message(self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
-        if self.config["mqtt"]["enable"]:
-            self.topic_handler.handle(msg)
+        split = str(msg.topic).split('/')
+        camera_name = split[0]
+        topic_value = split[1]
+        # Get camera type settings
+        camera_config = self.config["cameras"][camera_name]
+        camera_type = self.config["camera-types"][camera_config["type"]]
+        # Reverse topic key-value -> value-key => relative handling by keys
+        topic_value_key = {v: k for k, v in camera_type["mqtt"]["topic-suffix"].items()}
+        # Finally get the relative/generic topic key
+        topic_key = topic_value_key[topic_value]
+        if self.config["broker-mqtt"]["enable"] and topic_key in camera_config["topics"]:
+            self.topic_handler.handle(topic_key=topic_key, camera=camera_name, message=msg)
 
     def connect_and_start(self):
         server: str = self.config["broker-mqtt"]["ip"]
