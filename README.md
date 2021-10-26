@@ -1,5 +1,7 @@
 # YI Hack Telegram Bot - Face Detection notifications
 
+![alt text](images/bot-commands.png)
+
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
@@ -9,6 +11,7 @@
 - [Installation](#installation)
 - [Performance](#performance)
 - [Supported cameras](#supported-cameras)
+- [Screenshots](#screenshots)
 - [Donation](#donation)
 
 ## Features
@@ -102,6 +105,14 @@ Bot performance depends on camera availability and MQTT delay.
 ## Supported-Cameras
 
 All cameras supported by **Yi-Hack** projects
+
+c
+
+![alt text](images/motion.png)
+![alt text](images/select-camera.png)
+![alt text](images/snapshot.png)
+![alt text](images/video.png)
+![alt text](images/ttx.png)
 
 ## Donation
 
