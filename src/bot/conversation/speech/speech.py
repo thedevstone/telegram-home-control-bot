@@ -40,16 +40,19 @@ class SpeakCommand(object):
 
     def speak_message(self, update: Update, context: CallbackContext):
         cam_name = context.user_data["selected_camera"]
-        ip = self.config["cameras"][cam_name]["ip"]
+        ip = self.config["cameras"][cam_name]["ip-port"]
+        camera_type = self.config["cameras"][cam_name]["type"]
+        speak_url = self.config["camera-types"][camera_type]["web-services"]["speak"]
+        speaker_url = self.config["camera-types"][camera_type]["web-services"]["speaker"]
         if update.message.text:
-            message = update.message.text.encode("utf-8")
+            message = update.message.text.lower().encode("utf-8")
             if message == b"exit":
                 update.effective_message.delete()
                 return bot_states.LOGGED
             try:
-                response: Response = requests.post("http://{}:80/cgi-bin/speak.sh?lang=it-IT".format(ip), timeout=20,
+                response: Response = requests.post("http://{}{}".format(ip, speak_url), timeout=20,
                                                    data=message)
-                message = update.effective_message.reply_text(text="Success" if response.json()["error"] else "Error")
+                message = update.effective_message.reply_text(text=response.json()["description"])
                 self.utils.check_last_and_delete(update, context, message)
             except requests.exceptions.Timeout:
                 logger.error("Timeout")
@@ -73,7 +76,7 @@ class SpeakCommand(object):
                 return bot_states.SPEAK_MESSAGE
             try:
                 with open("voice.wav", "rb") as f:
-                    requests.post("http://{}:80/cgi-bin/speaker.sh".format(ip), timeout=20, data=f.read(),
+                    requests.post("http://{}{}".format(ip, speaker_url), timeout=20, data=f.read(),
                                   headers={'Content-Type': 'application/octet-stream'})
             except requests.exceptions.Timeout:
                 logger.error("Timeout")

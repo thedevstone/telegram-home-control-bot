@@ -37,6 +37,12 @@ def dump_yaml(data, file):
     yaml.dump(data, open(file, 'w'), default_flow_style=False)
 
 
+def merge_yaml_configs(config1, config2):
+    for key, value in config2.items():
+        config1[key] = value
+    return config1
+
+
 def get_project_relative_path(path):
     return Path.joinpath(Path(os.getcwd()).parent, path)
 

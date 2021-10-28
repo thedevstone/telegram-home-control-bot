@@ -16,23 +16,26 @@ class YiMQTTTopicHandler:
         self.init_handlers()
 
     def init_handlers(self):
-        self.topic_handlers["status"] = self.status_message_handler
-        self.topic_handlers["motion_detection_image"] = self.motion_detection_image_handler
+        self.topic_handlers["status-message"] = self.status_message_handler
+        self.topic_handlers["motion-message"] = self.motion_message_handler
+        self.topic_handlers["sound-message"] = self.sound_message_handler
+        self.topic_handlers["motion-image"] = self.motion_detection_image_handler
 
-    def handle(self, message: mqtt.MQTTMessage):
-        split = str(message.topic).split('/')
-        camera = split[0]
-        topic = split[1]
+    def handle(self, topic_key: str, camera: str, message: mqtt.MQTTMessage):
         try:
-            self.topic_handlers[topic](camera, message)
+            self.topic_handlers[topic_key](camera, message)
         except KeyError:
-            logger.warning("<{}> handler not found".format(topic))
+            logger.warning("<{}> handler not found".format(topic_key))
 
     def status_message_handler(self, camera: str, message: mqtt.MQTTMessage):
         payload = self.get_text_payload(message)
         self.bot_utils.send_msg_to_logged_auth_users(camera=camera, message="{}: {}".format(camera, payload))
 
     def motion_message_handler(self, camera: str, message: mqtt.MQTTMessage):
+        payload = self.get_text_payload(message)
+        self.bot_utils.send_msg_to_logged_auth_users(camera=camera, message="{}: {}".format(camera, payload))
+
+    def sound_message_handler(self, camera: str, message: mqtt.MQTTMessage):
         payload = self.get_text_payload(message)
         self.bot_utils.send_msg_to_logged_auth_users(camera=camera, message="{}: {}".format(camera, payload))
 

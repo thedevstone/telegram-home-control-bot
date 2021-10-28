@@ -1,0 +1,34 @@
+telegram:
+  ip: 2.2.2.2
+  port: 88
+  key: "private.key"
+  cert: "cert.pem"
+broker-mqtt:
+  ip: 192.168.1.1 #Leave empty if not used
+  username: "mqtt-user"
+  password: "password"
+  enable: true
+cameras:
+  yicam-1:
+    type: yi-hack-allwinner
+    ip-port: 192.168.1.192:80
+    topics: # See camera types topics
+      - status-message
+      - motion-message
+      - motion-image
+      - sound-message
+  yicam-2:
+    type: yi-hack-allwinner
+    ip-port: 192.168.1.193:80
+    topics:
+      - status-message
+      - motion-message
+      - motion-image
+      - sound-message
+token: 1234523:2342525234523424234234324
+users:
+  Username:
+    cameras:
+      - yicam-1
+      - yicam-2
+admin: Username

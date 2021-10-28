@@ -1,0 +1,13 @@
+camera-types:
+  yi-hack-allwinner:
+    mqtt:
+      topic-suffix:
+        status-message: "status"
+        motion-message: "motion_detection"
+        sound-message: "sound_detection"
+        motion-image: "motion_detection_image"
+    web-services:
+      snapshot: "/cgi-bin/snapshot.sh"
+      video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
+      speak: "/cgi-bin/speak.sh?lang=it-IT"
+      speaker: "/cgi-bin/speaker.sh"
