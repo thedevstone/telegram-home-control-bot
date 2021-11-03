@@ -37,25 +37,36 @@ class VideoCommand(object):
         update.callback_query.answer()
         # Video times
         ip = self.config["cameras"][cam_name]["ip-port"]
-        video_times = video_utils.get_last_folder_video_times(ip)
-        # Add all rows with 3 times
-        elem_per_row = 3
-        rows = int(len(video_times) / elem_per_row)
-        kb = [[InlineKeyboardButton("{}".format(video_times[i * elem_per_row + n]),
-                                    callback_data="{}-{}".format(i * elem_per_row + n,
-                                                                 video_times[i * elem_per_row * n]))
-               for n in range(elem_per_row)] for i in range(rows)]
-        # Add last row with remaining times
-        remain_in_last_row = int(len(video_times) % elem_per_row)
-        start_idx = len(video_times) - remain_in_last_row
-        kb.append([InlineKeyboardButton("{}".format(video_times[start_idx + i]),
-                                        callback_data="{}-{}".format(start_idx + i, video_times[start_idx + i])) for i
-                   in range(remain_in_last_row)])
-        # Add last button
-        kb.append([InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))])
-        reply_markup = InlineKeyboardMarkup(kb)
-        update.callback_query.edit_message_text(text="Get video:", reply_markup=reply_markup)
-        return bot_states.VIDEO_OLDNESS
+        try:
+            video_times = video_utils.get_last_folder_video_times(ip)
+            # USE VIDEO TIMES
+            elem_per_row = 3
+            rows = int(len(video_times) / elem_per_row)
+            kb = [[InlineKeyboardButton("{}".format(video_times[i * elem_per_row + n]),
+                                        callback_data="{}-{}".format(i * elem_per_row + n,
+                                                                     video_times[i * elem_per_row * n]))
+                   for n in range(elem_per_row)] for i in range(rows)]
+            # Add last row with remaining times
+            remain_in_last_row = int(len(video_times) % elem_per_row)
+            start_idx = len(video_times) - remain_in_last_row
+            kb.append([InlineKeyboardButton("{}".format(video_times[start_idx + i]),
+                                            callback_data="{}-{}".format(start_idx + i, video_times[start_idx + i]))
+                       for i in range(remain_in_last_row)])
+            # Add last button
+            kb.append([InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))])
+            reply_markup = InlineKeyboardMarkup(kb)
+            update.callback_query.edit_message_text(text="Get video:", reply_markup=reply_markup)
+            return bot_states.VIDEO_OLDNESS
+        except requests.exceptions.Timeout:
+            logger.error("Timeout")
+            message = update.effective_message.reply_text(text="Timeout")
+            self.utils.check_last_and_delete(update, context, message)
+            return bot_states.LOGGED
+        except telegram.error.BadRequest:
+            logger.error("Bad request")
+            message = update.effective_message.reply_text(text="Empty file")
+            self.utils.check_last_and_delete(update, context, message)
+            return bot_states.LOGGED
 
     def video_oldness(self, update: Update, context: CallbackContext):
         oldness_time = update.callback_query.data.split("-")
