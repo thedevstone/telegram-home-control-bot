@@ -44,6 +44,8 @@ class TelegramBot:
                                                            pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
                 bot_states.VIDEO: [CallbackQueryHandler(self.video.video_resp,
                                                         pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
+                bot_states.VIDEO_OLDNESS: [CallbackQueryHandler(self.video.video_oldness,
+                                                                pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
                 bot_states.SPEAK: [CallbackQueryHandler(self.speak.speak_resp,
                                                         pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
                 bot_states.SPEAK_MESSAGE: [MessageHandler(Filters.all, self.speak.speak_message)]

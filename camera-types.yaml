@@ -8,6 +8,6 @@ camera-types:
         motion-image: "motion_detection_image"
     web-services:
       snapshot: "/cgi-bin/snapshot.sh"
-      video: "/cgi-bin/getlastrecordedvideo.sh?oldness=0&type=4"
+      video: "/cgi-bin/getlastrecordedvideo.sh"
       speak: "/cgi-bin/speak.sh?lang=it-IT"
       speaker: "/cgi-bin/speaker.sh"
