@@ -6,12 +6,12 @@
 
 - [Table of Contents](#table-of-contents)
 - [Features](#features)
+- [Features screenshots](#features-screenshots)
 - [Prerequisites](#prerequisites)
 - [Bot creation](#bot-creation)
 - [Installation](#installation)
 - [Performance](#performance)
 - [Supported cameras](#supported-cameras)
-- [Screenshots](#screenshots)
 - [Donation](#donation)
 
 ## Features
@@ -22,18 +22,38 @@
 - **Authorization**
     - Access Control List on single cameras for single user
 - **MQTT**
-    - Notifications   
+    - Notifications
         - Realtime motion detection images from MQTT
         - Realtime sound detection
         - Status notification
         - Baby crying notification
     - Switch MQTT messages on and off
-- **Status**
-    - Ask last snapshot from cameras
-    - Ask last video from cameras
+- **Snapshot**
+    - Ask for last snapshot from cameras
+- **Video**
+    - Ask for n-th last video from cameras
 - **Audio**
     - Text to Speech to cameras
     - Send Audio to cameras
+
+## Features screenshots
+- **Authentication**
+- **Authorization**
+    
+    ![alt text](images/select-camera.png)
+- **MQTT**
+
+    ![alt text](images/motion.png) 
+- **Snapshot**
+
+    ![alt text](images/snapshot.png) 
+- **Video**
+
+    ![alt text](images/video.png)
+- **Audio**
+    
+    ![alt text](images/ttx.png)
+
 
 ## Prerequisites
 
@@ -111,14 +131,6 @@ Bot performance depends on camera availability and MQTT delay.
 ## Supported-Cameras
 
 All cameras supported by **Yi-Hack** projects
-
-## Screenshots
-
-![alt text](images/motion.png)
-![alt text](images/select-camera.png)
-![alt text](images/snapshot.png)
-![alt text](images/video.png)
-![alt text](images/ttx.png)
 
 ## Donation
 
