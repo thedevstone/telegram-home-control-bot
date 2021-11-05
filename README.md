@@ -49,6 +49,7 @@
     ![alt text](images/snapshot.png) 
 - **Video**
 
+    ![alt text](images/times.png)
     ![alt text](images/video.png)
 - **Audio**
     
