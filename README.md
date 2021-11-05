@@ -69,14 +69,16 @@ Install:
 ### Preparing configuration
 
 - Create a **config.yaml**. See `config-example.yaml`
-- Network bot config:
+- Bot mode of operation, choose between:
+    - **(DEFAULT) Polling bot**:
+        The bot will ask to Telegram servers if there are new updates. No port to open
     - **WebHook**:
+        The bot act in a passive way, very performant, but need to open port and generate certificates
         - uncomment `telegram_bot.start_web_hook()` in `main.py`
         - open port **88** on router.
         - Create a `cert.pem` and `private.key` with openssl. Place them in top folder. See [**WebHook
           guide**](https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks)
-    - **Polling bot**:
-        - uncomment `telegram_bot.start_polling()` in `main.py`
+
 
 ### Docker Install
 
