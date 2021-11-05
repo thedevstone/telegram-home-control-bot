@@ -1,4 +1,4 @@
-# YI Hack Telegram Bot - Face Detection notifications
+# YI Hack Telegram Bot - MQTT notifications and Web Services
 
 ![alt text](images/bot-commands.png)
 
@@ -22,8 +22,12 @@
 - **Authorization**
     - Access Control List on single cameras for single user
 - **MQTT**
-    - Realtime motion detection images from MQTT
-    - Switch MQTT messages
+    - Notifications   
+        - Realtime motion detection images from MQTT
+        - Realtime sound detection
+        - Status notification
+        - Baby crying notification
+    - Switch MQTT messages on and off
 - **Status**
     - Ask last snapshot from cameras
     - Ask last video from cameras
@@ -106,7 +110,7 @@ Bot performance depends on camera availability and MQTT delay.
 
 All cameras supported by **Yi-Hack** projects
 
-c
+## Screenshots
 
 ![alt text](images/motion.png)
 ![alt text](images/select-camera.png)
