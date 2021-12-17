@@ -25,6 +25,18 @@ cameras:
       - motion-message
       - motion-image
       - sound-message
+    username: username
+    password: password
+  reolink-1:
+    type: reolink-4k
+    ip-port: 192.168.1.190:80
+    username: username
+    password: password
+  reolink-2:
+    type: reolink-4k
+    ip-port: 192.168.1.191:80
+    username: username
+    password: password
 token: 1234523:2342525234523424234234324
 users:
   Username:
