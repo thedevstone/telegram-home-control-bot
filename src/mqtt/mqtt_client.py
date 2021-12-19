@@ -10,9 +10,7 @@ logger = logging.getLogger(os.path.basename(__file__))
 
 
 class MqttClient:
-    def __init__(self, auth_chat_ids, bot, config, topic_handler: MQTTTopicHandler):
-        self.authChatIds = auth_chat_ids
-        self.bot = bot
+    def __init__(self, config, topic_handler: MQTTTopicHandler):
         self.config = config
         self.client = mqtt.Client(client_id="Bot-" + str(Random().randint(0, 1000)), clean_session=True)
         self.topic_handler = topic_handler
@@ -29,9 +27,10 @@ class MqttClient:
         logger.info("MQTT Connected with result code " + str(rc))
         for camera_name, camera_value in self.config["cameras"].items():
             camera_type_config = self.config["camera-types"][camera_value["type"]]
-            for topic_key, topic in camera_type_config["mqtt"]["topic-suffix"].items():
-                self.client.subscribe("{}/{}".format(camera_name, topic), qos=1)
-                logger.info("Subscribed to {} -> {}/{}".format(topic_key, camera_name, topic))
+            if "mqtt" in camera_type_config:
+                for topic_key, topic in camera_type_config["mqtt"]["topic-suffix"].items():
+                    self.client.subscribe("{}/{}".format(camera_name, topic), qos=1)
+                    logger.info("Subscribed to {} -> {}/{}".format(topic_key, camera_name, topic))
 
     def on_message(self, client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
         split = str(msg.topic).split('/')

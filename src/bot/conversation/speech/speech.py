@@ -40,7 +40,8 @@ class SpeakCommand(object):
 
     def speak_message(self, update: Update, context: CallbackContext):
         cam_name = context.user_data["selected_camera"]
-        ip = self.config["cameras"][cam_name]["ip-port"]
+        ip = self.config["cameras"][cam_name]["ip"]
+        port = self.config["cameras"][cam_name]["port"]
         camera_type = self.config["cameras"][cam_name]["type"]
         speak_url = self.config["camera-types"][camera_type]["web-services"]["speak"]
         speaker_url = self.config["camera-types"][camera_type]["web-services"]["speaker"]
@@ -50,7 +51,7 @@ class SpeakCommand(object):
                 update.effective_message.delete()
                 return bot_states.LOGGED
             try:
-                response: Response = requests.post("http://{}{}".format(ip, speak_url), timeout=20,
+                response: Response = requests.post("http://{}:{}{}".format(ip, port, speak_url), timeout=20,
                                                    data=message)
                 message = update.effective_message.reply_text(text=response.json()["description"])
                 self.utils.check_last_and_delete(update, context, message)

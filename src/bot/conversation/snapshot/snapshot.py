@@ -31,12 +31,16 @@ class SnapshotCommand(object):
 
     def snapshot_resp(self, update: Update, context):
         cam_name = update.callback_query.data
-        ip = self.config["cameras"][cam_name]["ip-port"]
+        ip = self.config["cameras"][cam_name]["ip"]
+        port = self.config["cameras"][cam_name]["port"]
+        username = self.config["cameras"][cam_name]["username"]
+        password = self.config["cameras"][cam_name]["password"]
         camera_type = self.config["cameras"][cam_name]["type"]
         snapshot_url = self.config["camera-types"][camera_type]["web-services"]["snapshot"]
         update.callback_query.answer()
         try:
-            response = requests.get("http://{}{}".format(ip, snapshot_url), timeout=10)
+            response = requests.get(
+                "http://{}:{}{}&username={}&password={}".format(ip, port, snapshot_url, username, password), timeout=10)
             update.effective_message.reply_photo(BytesIO(response.content), caption=cam_name + ": shapshot")
         except requests.exceptions.Timeout:
             logger.error("Timeout")

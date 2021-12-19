@@ -4,6 +4,7 @@ import os
 from bot import telegram_bot
 from mqtt import mqtt_client
 from mqtt.mqtt_topic_handler import MQTTTopicHandler
+from ping import ping_service
 from utils import utils
 
 if __name__ == '__main__':
@@ -31,6 +32,9 @@ if __name__ == '__main__':
     telegram_bot.start_polling()
 
     # MQTT
-    topic_handler = MQTTTopicHandler(bot_utils=telegram_bot.utils)
-    mqttClient = mqtt_client.MqttClient(authChatIds, telegram_bot.get_bot(), config, topic_handler)
+    topic_handler = MQTTTopicHandler(telegram_bot.utils)
+    mqttClient = mqtt_client.MqttClient(config, topic_handler)
     mqttClient.connect_and_start()
+
+    pingService = ping_service.PingService(telegram_bot.utils, config)
+    pingService.start_service_async()
