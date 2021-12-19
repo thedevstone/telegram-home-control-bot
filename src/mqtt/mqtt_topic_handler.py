@@ -9,7 +9,7 @@ from bot.utils.bot_utils import BotUtils
 logger = logging.getLogger(os.path.basename(__file__))
 
 
-class YiMQTTTopicHandler:
+class MQTTTopicHandler:
     def __init__(self, bot_utils: BotUtils):
         self.bot_utils = bot_utils
         self.topic_handlers = dict()

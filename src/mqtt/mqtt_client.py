@@ -4,13 +4,13 @@ from random import Random
 
 import paho.mqtt.client as mqtt
 
-from mqtt.yi_mqtt_topic_handler import YiMQTTTopicHandler
+from mqtt.mqtt_topic_handler import MQTTTopicHandler
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
 class MqttClient:
-    def __init__(self, auth_chat_ids, bot, config, topic_handler: YiMQTTTopicHandler):
+    def __init__(self, auth_chat_ids, bot, config, topic_handler: MQTTTopicHandler):
         self.authChatIds = auth_chat_ids
         self.bot = bot
         self.config = config

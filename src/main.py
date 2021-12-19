@@ -3,7 +3,7 @@ import os
 
 from bot import telegram_bot
 from mqtt import mqtt_client
-from mqtt.yi_mqtt_topic_handler import YiMQTTTopicHandler
+from mqtt.mqtt_topic_handler import MQTTTopicHandler
 from utils import utils
 
 if __name__ == '__main__':
@@ -31,6 +31,6 @@ if __name__ == '__main__':
     telegram_bot.start_polling()
 
     # MQTT
-    topic_handler = YiMQTTTopicHandler(bot_utils=telegram_bot.utils)
+    topic_handler = MQTTTopicHandler(bot_utils=telegram_bot.utils)
     mqttClient = mqtt_client.MqttClient(authChatIds, telegram_bot.get_bot(), config, topic_handler)
     mqttClient.connect_and_start()
