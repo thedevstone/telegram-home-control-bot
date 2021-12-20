@@ -18,6 +18,9 @@ class Reolink(Camera):
             base_url.format(self.ip, self.port, snapshot_url, self.username, self.password), timeout=10)
         return response
 
+    def get_video_times(self) -> list[str]:
+        raise UnsupportedOperationError("Video api not supported")
+
     def get_video(self, video_oldness: int) -> Response:
         raise UnsupportedOperationError("Video api not supported")
 

@@ -15,6 +15,10 @@ class Camera(ABC):
         ...
 
     @abstractmethod
+    def get_video_times(self) -> list[str]:
+        ...
+
+    @abstractmethod
     def get_video(self, video_oldness: int) -> Response:
         ...
 

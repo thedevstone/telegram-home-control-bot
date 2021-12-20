@@ -29,7 +29,7 @@ class TelegramBot:
         self.utils = bot_utils.BotUtils(config, auth_chat_ids, self.bot)
         self.root = root.RootCommand(config, auth_chat_ids, self.utils)
         self.snapshot = snapshot.SnapshotCommand(config, auth_chat_ids, self.camera_instances, self.utils)
-        self.video = video.VideoCommand(config, auth_chat_ids, self.utils)
+        self.video = video.VideoCommand(config, auth_chat_ids, self.camera_instances, self.utils)
         self.speak = speech.SpeakCommand(config, auth_chat_ids, self.utils)
 
         # Level 1 only callback (no warning)

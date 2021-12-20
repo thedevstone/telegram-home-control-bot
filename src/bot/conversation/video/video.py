@@ -1,6 +1,7 @@
 import logging
 import os
 from io import BytesIO
+from typing import Dict
 
 import requests
 import telegram
@@ -11,15 +12,18 @@ from telegram.ext import CallbackContext
 from bot.conversation.fsm import bot_states, bot_events
 from bot.conversation.video import video_utils
 from bot.utils.bot_utils import BotUtils
+from cameras.camera import Camera
+from cameras.unsupported_operation_error import UnsupportedOperationError
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 
 class VideoCommand(object):
     # Constructor
-    def __init__(self, config, auth_chat_ids, conversation_utils: BotUtils):
+    def __init__(self, config, auth_chat_ids, camera_instances: Dict[str, Camera], conversation_utils: BotUtils):
         self.config = config
         self.auth_chat_ids = auth_chat_ids
+        self.camera_instances: Dict[str, Camera] = camera_instances
         self.utils = conversation_utils
 
     def select_camera(self, update: Update, _):
@@ -36,10 +40,9 @@ class VideoCommand(object):
         context.user_data["cam_name"] = cam_name
         update.callback_query.answer()
         # Video times
-        ip = self.config["cameras"][cam_name]["ip"]
-        port = self.config["cameras"][cam_name]["port"]
         try:
-            video_times = video_utils.get_last_folder_video_times(ip, port)
+            video_times = self.camera_instances[cam_name].get_video_times()
+            logger.info(video_times)
             # USE VIDEO TIMES
             elem_per_row = 3
             rows = int(len(video_times) / elem_per_row)
@@ -58,6 +61,11 @@ class VideoCommand(object):
             reply_markup = InlineKeyboardMarkup(kb)
             update.callback_query.edit_message_text(text="Get video:", reply_markup=reply_markup)
             return bot_states.VIDEO_OLDNESS
+        except UnsupportedOperationError as e:
+            logger.error(str(e))
+            message = update.effective_message.reply_text(text=str(e))
+            self.utils.check_last_and_delete(update, context, message)
+            return bot_states.LOGGED
         except requests.exceptions.Timeout:
             logger.error("Timeout")
             message = update.effective_message.reply_text(text="Timeout")
@@ -76,15 +84,15 @@ class VideoCommand(object):
         update.callback_query.answer()
         # Camera web service
         cam_name = context.user_data["cam_name"]
-        ip = self.config["cameras"][cam_name]["ip"]
-        port = self.config["cameras"][cam_name]["port"]
-        camera_type = self.config["cameras"][cam_name]["type"]
-        video_url = self.config["camera-types"][camera_type]["web-services"]["video"]
         update.callback_query.answer()
         try:
-            response = requests.get("http://{}:{}{}?oldness={}&type=4".format(ip, port, video_url, oldness), timeout=20)
+            response = self.camera_instances[cam_name].get_video(int(oldness))
             update.effective_message.reply_video(video=BytesIO(response.content),
                                                  caption="{}: video-[{}]".format(cam_name, time))
+        except UnsupportedOperationError as e:
+            logger.error(str(e))
+            message = update.effective_message.reply_text(text=str(e))
+            self.utils.check_last_and_delete(update, context, message)
         except requests.exceptions.Timeout:
             logger.error("Timeout")
             message = update.effective_message.reply_text(text="Timeout")
