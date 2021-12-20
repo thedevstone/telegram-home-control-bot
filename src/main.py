@@ -1,7 +1,9 @@
 import logging
 import os
+from typing import Dict
 
 from bot import telegram_bot
+from cameras.camera import Camera
 from cameras.camera_loader import CameraLoader
 from mqtt import mqtt_client
 from mqtt.mqtt_topic_handler import MQTTTopicHandler
@@ -26,13 +28,13 @@ if __name__ == '__main__':
 
     # CAMERAS
     camera_loader = CameraLoader(config)
-    camera_instances = camera_loader.load_camera_instances()
+    camera_instances: Dict[str, Camera] = camera_loader.load_camera_instances()
 
     # DB
     authChatIds = dict()
 
     # BOT
-    telegram_bot = telegram_bot.TelegramBot(config, authChatIds)
+    telegram_bot = telegram_bot.TelegramBot(config, authChatIds, camera_instances)
     # telegram_bot.start_web_hook()
     telegram_bot.start_polling()
 

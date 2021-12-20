@@ -14,6 +14,6 @@ camera-types:
       speaker: "/cgi-bin/speaker.sh"
 
   reolink-4k:
-    camera-class: "yi_hack.YiHack"
+    camera-class: "reolink.Reolink"
     web-services:
       snapshot: "/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=wuuPhkmUCeI9WG7C"

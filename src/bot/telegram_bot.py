@@ -16,10 +16,11 @@ logger = logging.getLogger(os.path.basename(__file__))
 
 
 class TelegramBot:
-    def __init__(self, config, auth_chat_ids):
+    def __init__(self, config, auth_chat_ids, camera_instances):
         # Constructor
         self.config = config
         self.auth_chat_ids = auth_chat_ids
+        self.camera_instances = camera_instances
         self.updater = Updater(token=config["token"], use_context=True)
         self.bot = self.updater.bot
         self.dispatcher = self.updater.dispatcher
@@ -27,7 +28,7 @@ class TelegramBot:
         # Commands
         self.utils = bot_utils.BotUtils(config, auth_chat_ids, self.bot)
         self.root = root.RootCommand(config, auth_chat_ids, self.utils)
-        self.snapshot = snapshot.SnapshotCommand(config, auth_chat_ids, self.utils)
+        self.snapshot = snapshot.SnapshotCommand(config, auth_chat_ids, self.camera_instances, self.utils)
         self.video = video.VideoCommand(config, auth_chat_ids, self.utils)
         self.speak = speech.SpeakCommand(config, auth_chat_ids, self.utils)
 

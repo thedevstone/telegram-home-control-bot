@@ -1,6 +1,7 @@
 import logging
 import os
 import importlib
+from typing import Dict
 
 from cameras.camera import Camera
 
@@ -10,9 +11,9 @@ logger = logging.getLogger(os.path.basename(__file__))
 class CameraLoader(object):
     def __init__(self, config):
         self.config = config
-        self.cameras = dict()
+        self.cameras: Dict[str, Camera] = dict()
 
-    def load_camera_instances(self) -> dict:
+    def load_camera_instances(self) -> Dict[str, Camera]:
         for camera_name, camera_value in self.config["cameras"].items():
             ip = self.config["cameras"][camera_name]["ip"]
             port = self.config["cameras"][camera_name]["port"]
@@ -24,7 +25,7 @@ class CameraLoader(object):
             camera_type = self.my_import(module, module_class.split(".")[1])
             camera_instance = camera_type(ip, port, username, password)
             self.cameras[camera_name] = camera_instance
-        return dict
+        return self.cameras
 
     @staticmethod
     def my_import(module, class_name) -> type:
