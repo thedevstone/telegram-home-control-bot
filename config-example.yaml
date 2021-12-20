@@ -22,7 +22,7 @@ cameras:
     username: username
     password: password
   reolink-1:
-    type: reolink-4k
+    type: implementations-4k
     ip: 192.168.1.190
     port: 80
     ping-time: 10
@@ -33,5 +33,5 @@ users:
   Username:
     cameras:
       - yicam-1
-      - reolink-1
+      - implementations-1
 admin: Username

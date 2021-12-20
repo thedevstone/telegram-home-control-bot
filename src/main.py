@@ -2,6 +2,7 @@ import logging
 import os
 
 from bot import telegram_bot
+from cameras.camera_loader import CameraLoader
 from mqtt import mqtt_client
 from mqtt.mqtt_topic_handler import MQTTTopicHandler
 from ping import ping_service
@@ -22,6 +23,10 @@ if __name__ == '__main__':
 
     utils.check_configuration(config)
     logger.info("Configuration loaded")
+
+    # CAMERAS
+    camera_loader = CameraLoader(config)
+    camera_instances = camera_loader.load_camera_instances()
 
     # DB
     authChatIds = dict()
