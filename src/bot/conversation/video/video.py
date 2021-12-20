@@ -93,13 +93,16 @@ class VideoCommand(object):
             logger.error(str(e))
             message = update.effective_message.reply_text(text=str(e))
             self.utils.check_last_and_delete(update, context, message)
+            return bot_states.LOGGED
         except requests.exceptions.Timeout:
             logger.error("Timeout")
             message = update.effective_message.reply_text(text="Timeout")
             self.utils.check_last_and_delete(update, context, message)
+            return bot_states.LOGGED
         except telegram.error.BadRequest:
             logger.error("Bad request")
             message = update.effective_message.reply_text(text="Empty file")
             self.utils.check_last_and_delete(update, context, message)
+            return bot_states.LOGGED
         update.effective_message.delete()
         return bot_states.LOGGED

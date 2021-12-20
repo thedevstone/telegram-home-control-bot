@@ -23,5 +23,5 @@ class Camera(ABC):
         ...
 
     @abstractmethod
-    def speak(self, message: str) -> Response:
+    def speak(self, message_data: bytes) -> Response:
         ...

@@ -33,9 +33,9 @@ class YiHack(Camera):
             base_url.format(self.ip, self.port, video_url) + "?oldness={}&type=4".format(video_oldness), timeout=10)
         return response
 
-    def speak(self, message: str) -> Response:
+    def speak(self, message_data: bytes) -> Response:
         speak_url = "/cgi-bin/speak.sh?lang=it-IT"
         response: Response = requests.post(
-            base_url.format(self.ip, speak_url, self.port, speak_url), timeout=20, data=message)
+            base_url.format(self.ip, self.port, speak_url, speak_url), timeout=20, data=message_data)
         return response
 
