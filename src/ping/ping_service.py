@@ -14,6 +14,8 @@ class PingService:
     def __init__(self, utils: BotUtils, config):
         self.bot_utils = utils
         self.config = config
+        self.mutex = threading.Lock()
+        self.health_checks = dict()
 
     def start_service_async(self):
         job_thread = threading.Thread(target=self.schedule_tasks)
@@ -22,6 +24,7 @@ class PingService:
 
     def schedule_tasks(self):
         for camera_name, camera_value in self.config["cameras"].items():
+            self.health_checks[camera_name] = True  # Suppose al cameras up and working
             ip = camera_value["ip"]
             ping = camera_value["ping-time"]
             schedule.every(ping).seconds.do(self.run_threaded, self.ping_camera, camera_name, ip)
@@ -36,5 +39,11 @@ class PingService:
 
     def ping_camera(self, camera_name, ip):
         response = os.system("ping -c 1 {} > /dev/null 2>&1".format(ip))
-        if response != 0:
+        self.mutex.acquire()
+        if response != 0 and self.health_checks.get(camera_name):
             self.bot_utils.send_msg_to_logged_auth_users(camera_name, "{} is down".format(camera_name))
+            self.health_checks[camera_name] = False
+        elif response == 0 and not self.health_checks.get(camera_name):
+            self.bot_utils.send_msg_to_logged_auth_users(camera_name, "{} is up".format(camera_name))
+            self.health_checks[camera_name] = True
+        self.mutex.release()
