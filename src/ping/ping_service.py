@@ -27,7 +27,8 @@ class PingService:
             self.health_checks[camera_name] = True  # Suppose al cameras up and working
             ip = camera_value["ip"]
             ping = camera_value["ping-time"]
-            schedule.every(ping).seconds.do(self.run_threaded, self.ping_camera, camera_name, ip)
+            if ping is not 0:
+                schedule.every(ping).seconds.do(self.run_threaded, self.ping_camera, camera_name, ip)
         while True:
             schedule.run_pending()
             time.sleep(1)
