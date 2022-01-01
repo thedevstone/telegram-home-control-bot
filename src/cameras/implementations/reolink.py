@@ -20,7 +20,7 @@ class Reolink(Camera):
         self.api: reolinkapi.Camera = reolinkapi.Camera(self.ip, self.username, self.password)
 
     def get_video_list(self, hours=1):
-        start = (dt.now() - timedelta(hours=hours))
+        start = (dt.now() - timedelta(minutes=45))
         end = dt.now()
         processed_motions = self.api.get_motion_files(start=start, end=end, streamtype='sub')
         return processed_motions
@@ -46,6 +46,7 @@ class Reolink(Camera):
         self.api.get_file(processed_motion["filename"], output_path=os.path.join("./", f'motion_event.mp4'))
         with open("./motion_event.mp4", "rb") as fin:
             data = BytesIO(fin.read())
+            os.remove("./motion_event.mp4")
             return data
 
     def speak(self, message: str) -> Response:
