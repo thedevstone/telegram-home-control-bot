@@ -37,8 +37,8 @@ class SnapshotCommand(object):
         cam_name = update.callback_query.data
         update.callback_query.answer()
         try:
-            response = self.camera_instances[cam_name].get_snapshot()
-            update.effective_message.reply_photo(BytesIO(response.content), caption=cam_name + ": shapshot")
+            response: bytes = self.camera_instances[cam_name].get_snapshot()
+            update.effective_message.reply_photo(BytesIO(response), caption=cam_name + ": shapshot")
         except UnsupportedOperationError as e:
             logger.error(str(e))
             message = update.effective_message.reply_text(text=str(e))

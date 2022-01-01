@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from io import BytesIO
 
 from requests import Response
 
@@ -11,7 +12,7 @@ class Camera(ABC):
         self.password = password
 
     @abstractmethod
-    def get_snapshot(self) -> Response:
+    def get_snapshot(self) -> bytes:
         ...
 
     @abstractmethod
@@ -19,7 +20,7 @@ class Camera(ABC):
         ...
 
     @abstractmethod
-    def get_video(self, video_oldness: int) -> Response:
+    def get_video(self, video_oldness: int) -> BytesIO:
         ...
 
     @abstractmethod

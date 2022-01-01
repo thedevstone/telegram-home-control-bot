@@ -1,6 +1,5 @@
 import logging
 import os
-from io import BytesIO
 from typing import Dict
 
 import requests
@@ -10,7 +9,6 @@ from telegram import Update
 from telegram.ext import CallbackContext
 
 from bot.conversation.fsm import bot_states, bot_events
-from bot.conversation.video import video_utils
 from bot.utils.bot_utils import BotUtils
 from cameras.camera import Camera
 from cameras.unsupported_operation_error import UnsupportedOperationError
@@ -42,13 +40,12 @@ class VideoCommand(object):
         # Video times
         try:
             video_times = self.camera_instances[cam_name].get_video_times()
-            logger.info(video_times)
             # USE VIDEO TIMES
             elem_per_row = 3
             rows = int(len(video_times) / elem_per_row)
             kb = [[InlineKeyboardButton("{}".format(video_times[i * elem_per_row + n]),
                                         callback_data="{}-{}".format(i * elem_per_row + n,
-                                                                     video_times[i * elem_per_row * n]))
+                                                                     video_times[i * elem_per_row + n]))
                    for n in range(elem_per_row)] for i in range(rows)]
             # Add last row with remaining times
             remain_in_last_row = int(len(video_times) % elem_per_row)
@@ -87,7 +84,7 @@ class VideoCommand(object):
         update.callback_query.answer()
         try:
             response = self.camera_instances[cam_name].get_video(int(oldness))
-            update.effective_message.reply_video(video=BytesIO(response.content),
+            update.effective_message.reply_video(video=response,
                                                  caption="{}: video-[{}]".format(cam_name, time))
         except UnsupportedOperationError as e:
             logger.error(str(e))
