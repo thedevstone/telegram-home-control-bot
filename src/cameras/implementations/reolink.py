@@ -20,7 +20,7 @@ class Reolink(Camera):
         self.api: reolinkapi.Camera = reolinkapi.Camera(self.ip, self.username, self.password)
 
     def get_video_list(self, hours=1):
-        start = (dt.now() - timedelta(minutes=45))
+        start = (dt.now() - timedelta(hours=hours))
         end = dt.now()
         processed_motions = self.api.get_motion_files(start=start, end=end, streamtype='sub')
         return processed_motions
