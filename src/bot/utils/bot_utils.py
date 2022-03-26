@@ -32,7 +32,7 @@ class BotUtils:
     def log_admin(self, msg, update: Update, context):
         if not self.is_admin(update.effective_user.username):
             for k1, v1 in self.auth_chat_ids.items():
-                if v1["username"] == self.config["users"]["admin"]:
+                if v1["username"] == self.config["admin"]:
                     context.bot.send_message(k1, text=msg)
 
     def is_admin_logged(self) -> bool:

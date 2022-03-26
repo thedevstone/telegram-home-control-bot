@@ -16,11 +16,12 @@ logger = logging.getLogger(os.path.basename(__file__))
 
 
 class TelegramBot:
-    def __init__(self, config, auth_chat_ids, camera_instances):
+    def __init__(self, config, auth_chat_ids, camera_instances, switch_instances):
         # Constructor
         self.config = config
         self.auth_chat_ids = auth_chat_ids
         self.camera_instances = camera_instances
+        self.switch_instances = switch_instances
         self.updater = Updater(token=config["token"], use_context=True)
         self.bot = self.updater.bot
         self.dispatcher = self.updater.dispatcher

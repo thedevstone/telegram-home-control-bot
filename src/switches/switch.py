@@ -1,11 +1,8 @@
 from abc import ABC, abstractmethod
-from io import BytesIO
 from typing import Dict
 
-from requests import Response
 
-
-class Camera(ABC):
+class Switch(ABC):
     def __init__(self, name: str, ip: str, port: int, username: str, password: str, services: Dict):
         self.name: str = name
         self.ip: str = ip
@@ -15,17 +12,17 @@ class Camera(ABC):
         self.services: Dict = services
 
     @abstractmethod
-    def get_snapshot(self) -> bytes:
+    def switch_on(self):
         ...
 
     @abstractmethod
-    def get_video_times(self) -> list[str]:
+    def switch_off(self):
         ...
 
     @abstractmethod
-    def get_video(self, video_oldness: int) -> BytesIO:
+    def toggle(self):
         ...
 
     @abstractmethod
-    def speak(self, message_data: bytes) -> Response:
+    def impulse(self):
         ...
