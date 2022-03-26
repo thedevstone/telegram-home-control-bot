@@ -24,5 +24,5 @@ class Switch(ABC):
         ...
 
     @abstractmethod
-    def impulse(self):
+    def inpulse(self):
         ...

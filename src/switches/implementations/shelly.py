@@ -23,5 +23,5 @@ class Shelly(Switch):
     def toggle(self):
         pass
 
-    def impulse(self):
+    def inpulse(self):
         self.__mqtt_client.publish(command_topic, "on")

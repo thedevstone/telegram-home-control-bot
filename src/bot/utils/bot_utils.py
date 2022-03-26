@@ -52,6 +52,7 @@ class BotUtils:
             self.auth_chat_ids[chat_id]["active"] = True
             self.auth_chat_ids[chat_id]["admin"] = self.is_admin(username)
             self.auth_chat_ids[chat_id]["cameras"] = self.config["users"][username]["cameras"]
+            self.auth_chat_ids[chat_id]["switches"] = self.config["users"][username]["switches"]
 
     def get_logged_users(self):
         return dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)
