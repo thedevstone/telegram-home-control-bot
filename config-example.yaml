@@ -32,6 +32,7 @@ switches:
   shelly-door:
     type: shelly
     ip: 192.168.1.117
+    port: 80
     ping-time: 10
     username: username
     password: password
@@ -42,5 +43,5 @@ users:
       - yicam-1
       - reolink-1
     switches:
-      - door
+      - shelly-door
 admin: Username
