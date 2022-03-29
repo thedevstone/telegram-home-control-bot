@@ -26,7 +26,7 @@ class SwitchCommand(object):
 
     def select_switch(self, update: Update, _):
         kb = []
-        for switch in self.auth_chat_ids[update.effective_chat.id]["switches"]:
+        for switch in (self.auth_chat_ids[update.effective_chat.id]["switches"] or []):
             kb.append([InlineKeyboardButton("{}".format(switch), callback_data="{}".format(switch))])
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))])
         reply_markup = InlineKeyboardMarkup(kb)

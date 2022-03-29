@@ -43,7 +43,8 @@ class BotUtils:
 
     def is_allowed(self, username) -> bool:
         for user, _ in self.config["users"].items():
-            return user == username
+            if user == username:
+                return True
 
     def init_user(self, chat_id, username):
         if chat_id not in self.auth_chat_ids:
