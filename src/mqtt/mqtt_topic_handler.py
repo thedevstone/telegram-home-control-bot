@@ -22,8 +22,8 @@ class MQTTTopicHandler:
         self.topic_handlers["sound-message"] = self.sound_message_handler
         self.topic_handlers["motion-image"] = self.motion_detection_image_handler
 
-    def on_connect(self, client, userdata, flags, rc):
-        logger.info("MQTT Connected with result code " + str(rc))
+    def on_connect(self, client: mqtt.Client, userdata, flags, reason_code, properties):
+        logger.info(f"MQTT Connected with result code: {reason_code} and properties: {properties} ")
         for camera_name, camera_value in self.config["cameras"].items():
             camera_type_config = self.config["camera-types"][camera_value["type"]]
             if "mqtt" in camera_type_config:

@@ -16,14 +16,16 @@ def start_web_hook(updater, token, ip, port, key, cert):
 
 def init_logger():
     log_name = get_project_relative_path("app.log")
-    handler = RotatingFileHandler(log_name, mode="w", maxBytes=100000, backupCount=1)
-    handler.suffix = "%Y%m%d"
-    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                        level=logging.INFO)
-    if os.path.isfile(log_name):  # log already exists, roll over!
-        handler.doRollover()
-    # logging.getLogger().addHandler(logging.StreamHandler())
-    logging.getLogger().addHandler(handler)
+    file_handler = RotatingFileHandler(log_name, mode="w", maxBytes=100000, backupCount=1)
+    console_handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.WARN)
+    console_handler.setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().addHandler(console_handler)
+    logging.getLogger().addHandler(file_handler)
 
 
 def load_yaml(file):

@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from random import Random
 from typing import Callable
 
@@ -11,7 +12,7 @@ logger = logging.getLogger(os.path.basename(__file__))
 class MqttClient:
     def __init__(self, config):
         self.config = config
-        self.client = mqtt.Client(client_id="Bot-" + str(Random().randint(0, 1000)), clean_session=True)
+        self.client = mqtt.Client(client_id="Bot-" + str(Random().randint(0, 1000)), protocol=mqtt.MQTTv5)
         self.init_mqtt_client()
 
     def init_mqtt_client(self):
@@ -25,11 +26,16 @@ class MqttClient:
     def set_on_message(self, function: Callable):
         self.client.on_message = function
 
+    def __on_disconnect(self):
+        time.sleep(50)
+        self.client.reconnect()
+
     def connect_and_start(self):
         server: str = self.config["broker-mqtt"]["ip"]
         if server:
             self.client.connect(server, 1883, 60)
             self.client.loop_start()
+            self.client.on_disconnect(self.__on_disconnect())
             logger.info("MQTT client started")
         else:
             logger.warning("MQTT client not defined")
