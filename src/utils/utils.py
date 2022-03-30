@@ -6,6 +6,9 @@ from pathlib import Path
 
 import yaml
 
+from mqtt.mqtt_client import MqttClient
+from utils.mqtt_logging import MqttLoggingHandler
+
 logger = logging.getLogger(os.path.basename(__file__))
 
 
@@ -23,9 +26,17 @@ def init_logger():
     console_handler.setFormatter(formatter)
     file_handler.setLevel(logging.WARN)
     console_handler.setLevel(logging.INFO)
-    logging.getLogger().setLevel(logging.INFO)
     logging.getLogger().addHandler(console_handler)
     logging.getLogger().addHandler(file_handler)
+    logging.getLogger().setLevel(logging.INFO)
+
+
+def init_mqtt_logger(mqtt_client: MqttClient):
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    mqtt_handler = MqttLoggingHandler(mqtt_client)
+    mqtt_handler.setLevel(logging.ERROR)
+    mqtt_handler.setFormatter(formatter)
+    logging.getLogger().addHandler(mqtt_handler)
 
 
 def load_yaml(file):

@@ -2,10 +2,14 @@ import logging
 import os
 from typing import Dict
 
+import paho.mqtt.properties
+from paho.mqtt.packettypes import PacketTypes
+
 from bot import telegram_bot
 from cameras.camera import Camera
 from cameras.camera_loader import CameraLoader
 from mqtt import mqtt_client
+from mqtt.mqtt_client import MqttClient
 from mqtt.mqtt_topic_handler import MQTTTopicHandler
 from ping import ping_service
 from switches.switch import Switch
@@ -13,6 +17,10 @@ from switches.switch_loader import SwitchLoader
 from utils import utils
 
 if __name__ == '__main__':
+    properties = paho.mqtt.properties.Properties(PacketTypes.Names)
+    print(properties.names)
+    print(properties.types)
+    print(properties.properties)
     # WORKING DIRECTORY
     abspath = os.path.abspath(__file__)
     d_name = os.path.dirname(abspath)
@@ -34,8 +42,9 @@ if __name__ == '__main__':
     services: Dict = dict()
 
     # MQTT
-    mqttClient = mqtt_client.MqttClient(config)
-    services["mqtt"] = mqttClient
+    mqtt_client: MqttClient = mqtt_client.MqttClient(config)
+    services["mqtt"] = mqtt_client
+    utils.init_mqtt_logger(mqtt_client)
 
     # CAMERAS
     camera_loader = CameraLoader(config)
@@ -55,10 +64,13 @@ if __name__ == '__main__':
 
     # MQTT TOPIC HANDLER
     topic_handler = MQTTTopicHandler(config, telegram_bot.utils)
-    mqttClient.set_on_connect(topic_handler.on_connect)
-    mqttClient.set_on_message(topic_handler.on_message)
-    mqttClient.connect_and_start()
+    mqtt_client.set_on_connect(topic_handler.on_connect)
+    mqtt_client.set_on_message(topic_handler.on_message)
+    mqtt_client.connect_and_start()
 
     # PING SERVICE
     pingService = ping_service.PingService(telegram_bot.utils, config)
     pingService.start_service_async()
+
+    # Reset mqtt retained messages sending empty mqtt
+    # logger.error("")
