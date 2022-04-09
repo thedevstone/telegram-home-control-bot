@@ -6,16 +6,15 @@
 
 - [Table of Contents](#table-of-contents)
 - [Features](#features)
-- [Features screenshots](#features-screenshots)
 - [Prerequisites](#prerequisites)
 - [Bot creation](#bot-creation)
 - [Installation](#installation)
 - [Performance](#performance)
-- [Supported cameras](#supported-cameras)
+- [Supported cameras](#devices)
 - [Donation](#donation)
 
+<a name="features"></a>
 ## Features
-
 - **Authentication**
     - User Authentication based on telegram unique username
     - Administrator access logs push
@@ -35,8 +34,10 @@
 - **Audio**
     - Text to Speech to cameras
     - Send Audio to cameras
+- **Switch**
+    - Switch entities, like shelly relays
 
-## Features screenshots
+### Features screenshots
 - **Authentication**
 - **Authorization**
     
@@ -55,10 +56,10 @@
     
     ![alt text](images/ttx.png)
 
-
+<a name="prerequisites"></a>
 ## Prerequisites
 
-### YI Cameras
+### YI Cameras (Optional)
 
 Install correct **YI-Hack** firmware for your camera:
 
@@ -79,18 +80,20 @@ Install:
 
 - Needed for motion detection images and messages
 
+<a name="bot-creation"></a>
 ## Bot Creation
 
 1. Create a Telegram Bot with **BotFather**
 2. Write down **Token**
 3. Copy commands from `botCommands.txt` and paste on **BotFather** commands for your bot
 
+<a name="installation"></a>
 ## Installation
 
 ### Preparing configuration
 
 - Create a **config.yaml**. See `config-example.yaml`
-- Bot mode of operation, choose between:
+- Bot mode of operation, choose one of:
     - **(DEFAULT) Polling bot**:
         The bot will ask to Telegram servers if there are new updates. No port to open
     - **WebHook**:
@@ -101,7 +104,7 @@ Install:
           guide**](https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks)
 
 
-### Docker Install
+### Docker Install (Recommended)
 
 Very simple
 
@@ -109,7 +112,7 @@ Very simple
 docker-compose up -d --build   
 ```
 
-### Python Install
+### Manual python Install
 
 1. Install python
 2. Create a virtual environment
@@ -124,15 +127,26 @@ docker-compose up -d --build
 ```shell
   (venv) python main.py
 ```
-
+<a name="performance"></a>
 ## Performance
 
 Bot performance depends on camera availability and MQTT delay.
 
-## Supported-Cameras
+<a name="devices"></a>
+## Supported Devices
+### Services
+- **MQTT**: all devices with MQTT support
+- **REST API**: all devices with REST API support
+### Supported Cameras
+All **MQTT** and **REST API** cameras.
+#### Tested Models
+- **YIHacks**: cameras supported by **Yi-Hack** projects
+- **Reolink**: cameras with Rest API by Reolink
+### Supported Switches
+All **MQTT** and **REST API** switches.
+#### Tested Models
+- **Shelly**: relays
 
-All cameras supported by **Yi-Hack** projects
-
+<a name="donation"></a>
 ## Donation
-
-[**Donation**](paypal.me/LucaGiulianini)
+[**Donation**](https://www.paypal.me/LucaGiulianini)
