@@ -10,7 +10,7 @@
 - [Bot creation](#bot-creation)
 - [Installation](#installation)
 - [Performance](#performance)
-- [Supported cameras](#devices)
+- [Supported devices](#devices)
 - [Donation](#donation)
 
 <a name="features"></a>
