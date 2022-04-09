@@ -2,3 +2,6 @@ python-telegram-bot
 PyYAML
 paho-mqtt
 requests
+schedule
+reolinkapi
+reolinkapi

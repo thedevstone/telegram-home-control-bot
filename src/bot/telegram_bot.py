@@ -8,6 +8,7 @@ from bot.conversation import root, speech
 from bot.conversation.fsm import bot_states, bot_events
 from bot.conversation.snapshot import snapshot
 from bot.conversation.speech import speech
+from bot.conversation.switch import switcher
 from bot.conversation.video import video
 from bot.utils import bot_utils
 from utils import utils
@@ -16,10 +17,12 @@ logger = logging.getLogger(os.path.basename(__file__))
 
 
 class TelegramBot:
-    def __init__(self, config, auth_chat_ids):
+    def __init__(self, config, auth_chat_ids, camera_instances, switch_instances):
         # Constructor
         self.config = config
         self.auth_chat_ids = auth_chat_ids
+        self.camera_instances = camera_instances
+        self.switch_instances = switch_instances
         self.updater = Updater(token=config["token"], use_context=True)
         self.bot = self.updater.bot
         self.dispatcher = self.updater.dispatcher
@@ -27,9 +30,10 @@ class TelegramBot:
         # Commands
         self.utils = bot_utils.BotUtils(config, auth_chat_ids, self.bot)
         self.root = root.RootCommand(config, auth_chat_ids, self.utils)
-        self.snapshot = snapshot.SnapshotCommand(config, auth_chat_ids, self.utils)
-        self.video = video.VideoCommand(config, auth_chat_ids, self.utils)
-        self.speak = speech.SpeakCommand(config, auth_chat_ids, self.utils)
+        self.snapshot = snapshot.SnapshotCommand(config, auth_chat_ids, self.camera_instances, self.utils)
+        self.video = video.VideoCommand(config, auth_chat_ids, self.camera_instances, self.utils)
+        self.speak = speech.SpeakCommand(config, auth_chat_ids, self.camera_instances, self.utils)
+        self.switch = switcher.SwitchCommand(config, auth_chat_ids, self.switch_instances, self.utils)
 
         # Level 1 only callback (no warning)
         self.menu_handler = ConversationHandler(
@@ -38,6 +42,7 @@ class TelegramBot:
                 CallbackQueryHandler(self.snapshot.select_camera, pattern='^' + str(bot_events.SNAPSHOT_CLICK) + '$'),
                 CallbackQueryHandler(self.video.select_camera, pattern='^' + str(bot_events.VIDEO_CLICK) + '$'),
                 CallbackQueryHandler(self.speak.select_camera, pattern='^' + str(bot_events.SPEAK_CLICK) + '$'),
+                CallbackQueryHandler(self.switch.select_switch, pattern='^' + str(bot_events.SWITCH_CLICK) + '$'),
             ],
             states={
                 bot_states.SNAPSHOT: [CallbackQueryHandler(self.snapshot.snapshot_resp,
@@ -48,8 +53,10 @@ class TelegramBot:
                                                                 pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
                 bot_states.SPEAK: [CallbackQueryHandler(self.speak.speak_resp,
                                                         pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
-                bot_states.SPEAK_MESSAGE: [MessageHandler(Filters.all, self.speak.speak_message)]
+                bot_states.SPEAK_MESSAGE: [MessageHandler(Filters.all, self.speak.speak_message)],
 
+                bot_states.SWITCH: [CallbackQueryHandler(self.switch.switch_resp,
+                                                         pattern="^(?!" + str(bot_events.EXIT_CLICK) + ").*")],
             },
             fallbacks=[CallbackQueryHandler(self.root.exit, pattern='^' + str(bot_events.EXIT_CLICK) + '$')],
             per_message=False,

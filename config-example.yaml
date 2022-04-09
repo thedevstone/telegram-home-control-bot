@@ -11,24 +11,37 @@ broker-mqtt:
 cameras:
   yicam-1:
     type: yi-hack-allwinner
-    ip-port: 192.168.1.192:80
+    ip: 192.168.1.192
+    port: 80
+    ping-time: 10 # Ping camera every x seconds
     topics: # See camera types topics
       - status-message
       - motion-message
       - motion-image
       - sound-message
-  yicam-2:
-    type: yi-hack-allwinner
-    ip-port: 192.168.1.193:80
-    topics:
-      - status-message
-      - motion-message
-      - motion-image
-      - sound-message
+    username: username
+    password: password
+  reolink-1:
+    type: reolink-1
+    ip: 192.168.1.190
+    port: 80
+    ping-time: 10
+    username: username
+    password: password
+switches:
+  shelly-door:
+    type: shelly
+    ip: 192.168.1.117
+    port: 80
+    ping-time: 10
+    username: username
+    password: password
 token: 1234523:2342525234523424234234324
 users:
   Username:
     cameras:
       - yicam-1
-      - yicam-2
+      - reolink-1
+    switches:
+      - shelly-door
 admin: Username

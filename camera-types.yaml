@@ -1,5 +1,6 @@
 camera-types:
   yi-hack-allwinner:
+    camera-class: "yi_hack.YiHack"
     mqtt:
       topic-suffix:
         status-message: "status"
@@ -11,3 +12,8 @@ camera-types:
       video: "/cgi-bin/getlastrecordedvideo.sh"
       speak: "/cgi-bin/speak.sh?lang=it-IT"
       speaker: "/cgi-bin/speaker.sh"
+
+  reolink-4k:
+    camera-class: "reolink.Reolink"
+    web-services:
+      snapshot: "/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=wuuPhkmUCeI9WG7C"

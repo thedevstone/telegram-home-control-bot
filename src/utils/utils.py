@@ -6,6 +6,9 @@ from pathlib import Path
 
 import yaml
 
+from mqtt.mqtt_client import MqttClient
+from utils.mqtt_logging import MqttLoggingHandler
+
 logger = logging.getLogger(os.path.basename(__file__))
 
 
@@ -16,14 +19,24 @@ def start_web_hook(updater, token, ip, port, key, cert):
 
 def init_logger():
     log_name = get_project_relative_path("app.log")
-    handler = RotatingFileHandler(log_name, mode="w", maxBytes=100000, backupCount=1)
-    handler.suffix = "%Y%m%d"
-    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                        level=logging.INFO)
-    if os.path.isfile(log_name):  # log already exists, roll over!
-        handler.doRollover()
-    # logging.getLogger().addHandler(logging.StreamHandler())
-    logging.getLogger().addHandler(handler)
+    file_handler = RotatingFileHandler(log_name, mode="w", maxBytes=100000, backupCount=1)
+    console_handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.WARN)
+    console_handler.setLevel(logging.INFO)
+    logging.getLogger().addHandler(console_handler)
+    logging.getLogger().addHandler(file_handler)
+    logging.getLogger().setLevel(logging.INFO)
+
+
+def init_mqtt_logger(mqtt_client: MqttClient):
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    mqtt_handler = MqttLoggingHandler(mqtt_client)
+    mqtt_handler.setLevel(logging.ERROR)
+    mqtt_handler.setFormatter(formatter)
+    logging.getLogger().addHandler(mqtt_handler)
 
 
 def load_yaml(file):
