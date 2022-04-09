@@ -32,7 +32,7 @@ class BotUtils:
     def log_admin(self, msg, update: Update, context):
         if not self.is_admin(update.effective_user.username):
             for k1, v1 in self.auth_chat_ids.items():
-                if v1["username"] == self.config["users"]["admin"]:
+                if v1["username"] == self.config["admin"]:
                     context.bot.send_message(k1, text=msg)
 
     def is_admin_logged(self) -> bool:
@@ -43,7 +43,8 @@ class BotUtils:
 
     def is_allowed(self, username) -> bool:
         for user, _ in self.config["users"].items():
-            return user == username
+            if user == username:
+                return True
 
     def init_user(self, chat_id, username):
         if chat_id not in self.auth_chat_ids:
@@ -52,6 +53,7 @@ class BotUtils:
             self.auth_chat_ids[chat_id]["active"] = True
             self.auth_chat_ids[chat_id]["admin"] = self.is_admin(username)
             self.auth_chat_ids[chat_id]["cameras"] = self.config["users"][username]["cameras"]
+            self.auth_chat_ids[chat_id]["switches"] = self.config["users"][username]["switches"]
 
     def get_logged_users(self):
         return dict((k, v) for k, v in self.auth_chat_ids.items() if v["active"] is True)

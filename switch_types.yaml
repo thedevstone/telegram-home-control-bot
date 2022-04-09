@@ -1,0 +1,5 @@
+switch-types:
+  shelly:
+    switch-class: "shelly.Shelly"
+    mqtt:
+      command-suffix: "shellies/shelly-door/relay/0/command"

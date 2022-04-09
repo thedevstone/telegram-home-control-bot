@@ -26,7 +26,7 @@ class VideoCommand(object):
 
     def select_camera(self, update: Update, _):
         kb = []
-        for camera in self.auth_chat_ids[update.effective_chat.id]["cameras"]:
+        for camera in (self.auth_chat_ids[update.effective_chat.id]["cameras"] or []):
             kb.append([InlineKeyboardButton("{}".format(camera), callback_data="{}".format(camera))])
         kb.append([InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))])
         reply_markup = InlineKeyboardMarkup(kb)

@@ -59,6 +59,7 @@ class RootCommand(object):
                     [InlineKeyboardButton(text="Snapshot", callback_data=str(bot_events.SNAPSHOT_CLICK))],
                     [InlineKeyboardButton(text="Video", callback_data=str(bot_events.VIDEO_CLICK))],
                     [InlineKeyboardButton(text="Speak", callback_data=str(bot_events.SPEAK_CLICK))],
+                    [InlineKeyboardButton(text="Switch", callback_data=str(bot_events.SWITCH_CLICK))],
                     [InlineKeyboardButton(text="❌", callback_data=str(bot_events.EXIT_CLICK))]
                     ]
         reply_markup = InlineKeyboardMarkup(keyboard)

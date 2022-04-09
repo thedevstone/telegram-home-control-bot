@@ -28,10 +28,20 @@ cameras:
     ping-time: 10
     username: username
     password: password
+switches:
+  shelly-door:
+    type: shelly
+    ip: 192.168.1.117
+    port: 80
+    ping-time: 10
+    username: username
+    password: password
 token: 1234523:2342525234523424234234324
 users:
   Username:
     cameras:
       - yicam-1
       - reolink-1
+    switches:
+      - shelly-door
 admin: Username

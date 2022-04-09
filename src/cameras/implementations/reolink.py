@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime as dt, timedelta, datetime
 from io import BytesIO
+from typing import Dict
 
 import reolinkapi
 import requests
@@ -15,8 +16,8 @@ base_url = "http://{}:{}{}&username={}&password={}"
 
 
 class Reolink(Camera):
-    def __init__(self, ip: str, port: int, username: str, password: str):
-        super().__init__(ip, port, username, password)
+    def __init__(self, name: str, ip: str, port: int, username: str, password: str, services: Dict):
+        super().__init__(name, ip, port, username, password, services)
         self.api: reolinkapi.Camera = reolinkapi.Camera(self.ip, self.username, self.password)
 
     def get_video_list(self, hours=1):

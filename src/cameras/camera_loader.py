@@ -13,7 +13,7 @@ class CameraLoader(object):
         self.config = config
         self.cameras: Dict[str, Camera] = dict()
 
-    def load_camera_instances(self) -> Dict[str, Camera]:
+    def load_camera_instances(self, services: Dict) -> Dict[str, Camera]:
         for camera_name, camera_value in self.config["cameras"].items():
             ip = self.config["cameras"][camera_name]["ip"]
             port = self.config["cameras"][camera_name]["port"]
@@ -23,7 +23,7 @@ class CameraLoader(object):
             module_class: str = self.config["camera-types"][camera_type]["camera-class"]
             module = "cameras.implementations.{}".format(module_class.split(".")[0])
             camera_type = self.my_import(module, module_class.split(".")[1])
-            camera_instance = camera_type(ip, port, username, password)
+            camera_instance = camera_type(camera_name, ip, port, username, password, services)
             self.cameras[camera_name] = camera_instance
         return self.cameras
 
