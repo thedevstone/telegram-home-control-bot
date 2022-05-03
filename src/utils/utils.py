@@ -24,7 +24,7 @@ def init_logger():
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.WARN)
+    file_handler.setLevel(logging.INFO)
     console_handler.setLevel(logging.INFO)
     logging.getLogger().addHandler(console_handler)
     logging.getLogger().addHandler(file_handler)

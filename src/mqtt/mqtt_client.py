@@ -27,17 +27,23 @@ class MqttClient:
     def set_on_message(self, function: Callable):
         self.client.on_message = function
 
+    @staticmethod
+    def on_disconnect():
+        logger.warning("MQTT disconnected")
+
     def connect_and_start(self):
         server: str = self.config["broker-mqtt"]["ip"]
         if server:
             self.client.connect(server, 1883, 60)
             self.client.loop_start()
+            self.client.on_disconnect = self.on_disconnect
             logger.info("MQTT client started")
         else:
             logger.warning("MQTT client not defined")
 
     def publish(self, topic: str, payload: str, qos=1, retain=False,
                 properties: paho.mqtt.properties.Properties = None):
+        logger.info(f"Publishing: {payload} on topic {topic}")
         self.client.publish(topic, payload, qos=qos, retain=retain, properties=properties)
 
     def disconnect_and_stop(self):
