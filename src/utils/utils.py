@@ -18,7 +18,7 @@ def start_web_hook(updater, token, ip, port, key, cert):
 
 
 def init_logger():
-    log_name = get_project_relative_path("app.log")
+    log_name = get_project_relative_path("log/app.log")
     file_handler = RotatingFileHandler(log_name, mode="w", maxBytes=100000, backupCount=1)
     console_handler = logging.StreamHandler()
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")

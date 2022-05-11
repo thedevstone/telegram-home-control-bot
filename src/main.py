@@ -18,9 +18,6 @@ from utils import utils
 
 if __name__ == '__main__':
     properties = paho.mqtt.properties.Properties(PacketTypes.Names)
-    print(properties.names)
-    print(properties.types)
-    print(properties.properties)
     # WORKING DIRECTORY
     abspath = os.path.abspath(__file__)
     d_name = os.path.dirname(abspath)
