@@ -13,7 +13,7 @@ logger = logging.getLogger(os.path.basename(__file__))
 class MqttClient:
     def __init__(self, config):
         self.config = config
-        self.client = mqtt.Client(client_id="Bot-" + str(Random().randint(0, 1000)), protocol=mqtt.MQTTv311)
+        self.client = mqtt.Client(client_id="Bot-" + str(Random().randint(0, 1000)), protocol=mqtt.MQTTv5)
         self.init_mqtt_client()
 
     def init_mqtt_client(self):
@@ -41,7 +41,7 @@ class MqttClient:
         else:
             logger.warning("MQTT client not defined")
 
-    def publish(self, topic: str, payload: str, qos=0, retain=False,
+    def publish(self, topic: str, payload: str, qos=1, retain=False,
                 properties: paho.mqtt.properties.Properties = None):
         info = self.client.publish(topic, payload, qos=qos, retain=retain, properties=properties)
         logger.info(f"Publishing: {payload} on topic {topic} - published: {info.is_published()} "
